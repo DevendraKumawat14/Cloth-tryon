@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fashion Try-On Studio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #1a1a1a;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* LEFT PANEL */
+        .left-panel {
+            width: 420px;
+            background: white;
+            overflow-y: auto;
+            padding: 24px;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.08);
+        }
+
+        .app-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .body-swap-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .body-swap-btn:hover {
+            background: #2d2d2d;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        }
+
+        .app-subtitle {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 32px;
+        }
+
+        .section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-number {
+            width: 24px;
+            height: 24px;
+            background: #1a1a1a;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .section-desc {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        /* IMAGE GRID */
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .image-item {
+            position: relative;
+            aspect-ratio: 3/4;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.2s;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .image-item:hover {
+            border-color: #1a1a1a;
+            transform: scale(1.02);
+        }
+
+        .image-item.selected {
+            border-color: #1a1a1a;
+            border-width: 3px;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 20px;
+            height: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+
+        .image-item:hover .remove-btn {
+            opacity: 1;
+        }
+
+        .remove-btn:hover {
+            background: #991b1b;
+        }
+
+        .upload-btn {
+            width: 100%;
+            padding: 12px;
+            background: #fafafa;
+            border: 2px dashed #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #6b7280;
+            transition: all 0.2s;
+        }
+
+        .upload-btn:hover {
+            border-color: #1a1a1a;
+            background: white;
+        }
+
+        /* GARMENT UPLOAD */
+        .garment-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .garment-upload {
+            border: 2px dashed #e5e7eb;
+            border-radius: 8px;
+            padding: 16px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .garment-upload:hover {
+            border-color: #1a1a1a;
+        }
+
+        .garment-upload.has-image {
+            border-style: solid;
+        }
+
+        .garment-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .garment-preview {
+            width: 100%;
+            max-height: 100px;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+
+        /* SHOT SELECTION */
+        .shot-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .shot-option {
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .shot-option:hover {
+            border-color: #1a1a1a;
+        }
+
+        .shot-option.selected {
+            background: #1a1a1a;
+            color: white;
+            border-color: #1a1a1a;
+        }
+
+        /* POSE SELECTION */
+        .gender-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .gender-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .gender-btn.active {
+            background: #1a1a1a;
+            color: white;
+            border-color: #1a1a1a;
+        }
+
+        .pose-counter {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .poses-grid {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .pose-card {
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pose-card:hover {
+            border-color: #1a1a1a;
+        }
+
+        .pose-card.selected {
+            background: #1a1a1a;
+            color: white;
+            border-color: #1a1a1a;
+        }
+
+        .pose-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .pose-desc {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        /* GENERATE BUTTON */
+        .btn-generate {
+            width: 100%;
+            padding: 16px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 24px;
+        }
+
+        .btn-generate:hover:not(:disabled) {
+            background: #2d2d2d;
+            transform: translateY(-1px);
+        }
+
+        .btn-generate:disabled {
+            background: #e5e7eb;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        /* RIGHT PANEL */
+        .right-panel {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+
+        .preview-header {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-download-all {
+            padding: 12px 24px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .btn-download-all:hover {
+            background: #2d2d2d;
+        }
+
+        .btn-download-all:disabled {
+            background: #e5e7eb;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .composite-preview {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .composite-preview h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .composite-preview img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        /* RESULTS */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .result-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .result-img {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .btn-download {
+            width: 100%;
+            padding: 10px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .btn-download:hover {
+            background: #2d2d2d;
+        }
+
+        .btn-select-image {
+            width: 100%;
+            padding: 8px;
+            background: white;
+            color: #1a1a1a;
+            border: 2px solid #1a1a1a;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+        }
+
+        .btn-select-image:hover {
+            background: #f5f5f5;
+        }
+
+        .btn-select-image.selected {
+            background: #1a1a1a;
+            color: white;
+        }
+
+        .closeup-controls {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 100;
+        }
+
+        .closeup-controls.active {
+            display: block;
+        }
+
+        .closeup-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 12px;
+        }
+
+        .closeup-options {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .btn-closeup-option {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .btn-closeup-option.active {
+            background: #1a1a1a;
+            color: white;
+            border-color: #1a1a1a;
+        }
+
+        .btn-generate-closeup {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .btn-generate-closeup:hover:not(:disabled) {
+            background: #2d2d2d;
+        }
+
+        .btn-generate-closeup:disabled {
+            background: #e5e7eb;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .selected-count {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        /* LOADING */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 48px;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .spinner {
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #1a1a1a;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .loading-subtext {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        /* HOVER PREVIEW MODAL */
+        .hover-preview {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            pointer-events: none;
+        }
+
+        .hover-preview img {
+            max-width: 400px;
+            max-height: 500px;
+            border-radius: 8px;
+        }
+
+        .hover-preview.active {
+            display: block;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            margin-top: 8px;
+            font-family: inherit;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #1a1a1a;
+        }
+
+        canvas {
+            display: none;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <!-- Body Swap Button -->
+    <button class="body-swap-btn" onclick="window.location.href='bodyswap.html'">
+        Body Swap
+    </button>
+
+    <div class="app-container">
+        <!-- LEFT PANEL -->
+        <div class="left-panel">
+            <h1 class="app-title">Mannequin Swap</h1>
+            <p class="app-subtitle">AI-powered virtual garment visualization</p>
+
+            <!-- Section 1: Model Selection -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-number">1</span>
+                    Select Model
+                </div>
+                <p class="section-desc">Choose from folder or upload (max 25 total)</p>
+                <div class="image-grid" id="modelGrid"></div>
+                <button class="upload-btn" onclick="document.getElementById('uploadModel').click()">
+                    + Upload Additional Model
+                </button>
+                <input type="file" id="uploadModel" accept="image/*" style="display:none;">
+            </div>
+
+            <!-- Section 2: Background Selection -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-number">2</span>
+                    Select Background
+                </div>
+                <p class="section-desc">Choose from folder or upload (max 25 total)</p>
+                <div class="image-grid" id="bgGrid"></div>
+                <button class="upload-btn" onclick="document.getElementById('uploadBg').click()">
+                    + Upload Additional Background
+                </button>
+                <input type="file" id="uploadBg" accept="image/*" style="display:none;">
+            </div>
+
+            <!-- Section 3: Garments -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-number">3</span>
+                    Upload Garments
+                </div>
+                <p class="section-desc">Select garment type and upload views</p>
+                
+                <!-- Garment Type Selector -->
+                <div class="gender-selector" style="margin-bottom: 16px;">
+                    <button class="gender-btn active" data-garment-type="regular">Regular (Top + Bottom)</button>
+                    <button class="gender-btn" data-garment-type="ethnic">Ethnic (One-Piece)</button>
+                </div>
+                
+                <div class="garment-grid">
+                    <div class="garment-upload" onclick="document.getElementById('topFront').click()">
+                        <div class="garment-title">Top Front</div>
+                        <input type="file" id="topFront" accept="image/*" style="display:none;">
+                        <img id="topFrontPreview" class="garment-preview" style="display:none;">
+                    </div>
+                    <div class="garment-upload" onclick="document.getElementById('topBack').click()">
+                        <div class="garment-title">Top Back</div>
+                        <input type="file" id="topBack" accept="image/*" style="display:none;">
+                        <img id="topBackPreview" class="garment-preview" style="display:none;">
+                    </div>
+                    <div class="garment-upload" id="bottomFrontUpload" onclick="document.getElementById('bottomFront').click()">
+                        <div class="garment-title">Bottom Front</div>
+                        <input type="file" id="bottomFront" accept="image/*" style="display:none;">
+                        <img id="bottomFrontPreview" class="garment-preview" style="display:none;">
+                    </div>
+                    <div class="garment-upload" id="bottomBackUpload" onclick="document.getElementById('bottomBack').click()">
+                        <div class="garment-title">Bottom Back</div>
+                        <input type="file" id="bottomBack" accept="image/*" style="display:none;">
+                        <img id="bottomBackPreview" class="garment-preview" style="display:none;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Accessories -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-number">4</span>
+                    Accessories
+                </div>
+                <p class="section-desc">Optional: Add jewellery or footwear</p>
+                <button class="upload-btn" onclick="document.getElementById('jewellery').click()">
+                    + Upload Jewellery
+                </button>
+                <input type="file" id="jewellery" accept="image/*" style="display:none;">
+                <input type="text" class="text-input" id="jewelleryPrompt" placeholder="Or describe jewellery...">
+                
+                <button class="upload-btn" onclick="document.getElementById('shoes').click()" style="margin-top: 12px;">
+                    + Upload Footwear
+                </button>
+                <input type="file" id="shoes" accept="image/*" style="display:none;">
+                <input type="text" class="text-input" id="shoesPrompt" placeholder="Or describe footwear...">
+            </div>
+
+            <!-- Section 5: Pose Selection -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-number">6</span>
+                    Select Poses
+                </div>
+                <div class="gender-selector">
+                    <button class="gender-btn active" data-gender="male">Male Poses</button>
+                    <button class="gender-btn" data-gender="female">Female Poses</button>
+                </div>
+                <div class="pose-counter">
+                    <span id="poseCount">0</span>/10 poses selected
+                </div>
+                <div class="poses-grid" id="posesGrid"></div>
+                <input type="text" class="text-input" id="customPoseName" placeholder="Enter pose name..." style="margin-top: 12px;">
+                <input type="text" class="text-input" id="customPoseDesc" placeholder="Describe the pose...">
+                <button class="upload-btn" onclick="addCustomPose()" style="margin-top: 12px;">
+                    + Add Custom Pose
+                </button>
+            </div>
+
+            <button class="btn-generate" id="generateBtn" disabled>Generate Images</button>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="right-panel">
+            <div class="preview-header">
+                <h2 style="margin: 0;">Preview & Results</h2>
+                <button class="btn-download-all" id="downloadAllBtn" disabled onclick="downloadAllAsZip()">
+                    Download All as ZIP
+                </button>
+            </div>
+
+            <div class="composite-preview" id="compositePreview" style="display:none;">
+                <h3>Complete Garment Composite</h3>
+                <img id="compositeImg" alt="Composite">
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p class="loading-text" id="loadingText">Preparing generation...</p>
+                <p class="loading-subtext" id="loadingSubtext">This may take a few minutes</p>
+            </div>
+
+            <div class="results-grid" id="resultsGrid"></div>
+        </div>
+    </div>
+
+    <!-- Closeup Controls Panel -->
+    <div class="closeup-controls" id="closeupControls">
+        <div class="closeup-title">Generate Closeup Shots</div>
+        <div class="selected-count"><span id="selectedCount">0</span> image(s) selected</div>
+        <div class="closeup-options">
+            <button class="btn-closeup-option" data-focus="top">Top Focus</button>
+            <button class="btn-closeup-option" data-focus="bottom">Bottom Focus</button>
+        </div>
+        <button class="btn-generate-closeup" id="generateCloseupBtn" disabled>Generate Closeups</button>
+    </div>
+
+    <!-- Hover Preview Modal -->
+    <div class="hover-preview" id="hoverPreview">
+        <img id="hoverPreviewImg" alt="Preview">
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <!-- JSZip Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="config.js"></script>
+    <script>
+        const API_KEY = GEMINI_API_KEY; // Add your API key here
+        
+        let allGeneratedImages = []; // Store all generated images for bulk download
+
+        const malePoses = [
+            { id: 1, name: "The Power Stand", desc: "Facing front, feet shoulder-width apart, chin slightly raised with confident neutral expression." },
+            { id: 2, name: "The One-Hand Pocket", desc: "Front-facing, one hand in pocket, relaxed posture, calm look." },
+            { id: 3, name: "The Crossed Arms", desc: "Straight posture, arms crossed loosely, composed and strong expression." },
+            { id: 4, name: "The Over Shoulder Glance", desc: "Back slightly turned, head looking over shoulder with calm intensity. (semi-back pose)" },
+            { id: 5, name: "The Back Turn", desc: "Full back toward camera, slight head turn showing side profile, firm posture. (back pose)" },
+            { id: 6, name: "The Relaxed Side Angle", desc: "Body at 45°, eyes forward, neutral soft expression." },
+            { id: 7, name: "The Seated Lean Forward", desc: "Sitting on chair, elbows resting on knees, focused thoughtful look." },
+            { id: 8, name: "The Seated Lean Back", desc: "Sitting casually back in chair, confident expression, shoulders relaxed." },
+            { id: 9, name: "The Walk Away", desc: "Mid-step walking away from camera, head slightly turned back. (back pose)" },
+            { id: 10, name: "The Head Down Look", desc: "Chin down, eyes forward with serious introspective gaze." },
+            { id: 11, name: "The Soft Smile", desc: "Relaxed shoulders, subtle half-smile, approachable demeanor." },
+            { id: 12, name: "The Side Profile", desc: "Body sideways, full profile visible, chin slightly lifted." },
+            { id: 13, name: "The Turned Torso", desc: "Upper body twisted slightly backward, head looking over shoulder. (semi-back pose)" },
+            { id: 14, name: "The Relaxed Back Lean", desc: "Leaning slightly backward, hands behind back, calm confident look. (back pose)" },
+            { id: 15, name: "The Laughing Moment", desc: "Candid laughter, head slightly tilted back, natural energy." },
+            { id: 16, name: "The Hands Behind Back", desc: "Standing tall, hands clasped behind back, composed posture. (back pose)" },
+            { id: 17, name: "The Jawline Focus", desc: "Slight turn of head emphasizing jawline, serious expression." },
+            { id: 18, name: "The Relaxed Gaze", desc: "Arms at sides, neutral relaxed face, calm stance." },
+            { id: 19, name: "The Step Forward", desc: "One foot slightly ahead, body facing camera, poised and ready." },
+            { id: 20, name: "The Shoulder Drop", desc: "Slight shoulder shift, head tilted, effortless cool expression." }
+        ];
+
+        const femalePoses = [
+            { id: 21, name: "The Soft S-Curve", desc: "Weight on one leg, hips slightly shifted, relaxed gentle posture." },
+            { id: 22, name: "The Over Shoulder Look", desc: "Body turned away, head glancing back softly. (semi-back pose)" },
+            { id: 23, name: "The Full Back Turn", desc: "Back facing camera, subtle twist showing profile, calm expression. (back pose)" },
+            { id: 24, name: "The Side Glance", desc: "Body angled at 45°, soft gaze toward camera, natural calm energy." },
+            { id: 25, name: "The Head Tilt", desc: "Head tilted slightly, relaxed lips, gentle expression." },
+            { id: 26, name: "The Seated Elegance", desc: "Sitting upright, legs crossed at ankles, serene poised look." },
+            { id: 27, name: "The Back Arch", desc: "Body turned sideways, slight back arch, face tilted upward. (semi-back pose)" },
+            { id: 28, name: "The Chin Down Look", desc: "Eyes looking down softly, peaceful serene face." },
+            { id: 29, name: "The Closed-Eye Calm", desc: "Eyes closed, soft facial relaxation, natural peace." },
+            { id: 30, name: "The Laughing Turn", desc: "Mid-laugh turning slightly sideways, candid joy. (semi-back pose)" },
+            { id: 31, name: "The Shoulder Drop", desc: "One shoulder slightly lower, neck elongated, graceful stance." },
+            { id: 32, name: "The Arm Wrap", desc: "Arms wrapped gently around torso, soft and secure energy." },
+            { id: 33, name: "The Sitting Twist", desc: "Seated sideways, torso turned back toward camera. (semi-back pose)" },
+            { id: 34, name: "The Over-the-Head Gaze", desc: "Head tilted slightly upward, soft lifted eyes, elegant expression." },
+            { id: 35, name: "The Soft Profile", desc: "Side profile, lips relaxed, calm gentle aura." },
+            { id: 36, name: "The Back Lean", desc: "Leaning slightly backward, neck relaxed, closed eyes. (back pose)" },
+            { id: 37, name: "The Floor Sit", desc: "Sitting on floor, knees bent sideways, gentle thoughtful expression." },
+            { id: 38, name: "The Half Smile", desc: "Natural relaxed half-smile, warm and calm energy." },
+            { id: 39, name: "The Neutral Beauty", desc: "Expressionless, stillness-focused face, calm posture." },
+            { id: 40, name: "The Walk Away", desc: "Walking away from camera, slight turn of head back. (back pose)" }
+        ];
+
+        let uploadedImages = {
+            model: null,
+            topFront: null,
+            topBack: null,
+            bottomFront: null,
+            bottomBack: null,
+            background: null,
+            jewellery: null,
+            shoes: null
+        };
+
+        // Load folder images only - no localStorage
+        let folderModelImages = [];
+        let folderBgImages = [];
+        let customPoses = JSON.parse(localStorage.getItem('customPoses')) || [];
+        let selectedPoses = [];
+        let currentGender = 'male';
+        let compositeImage = null;
+        let selectedImagesForCloseup = [];
+        let closeupFocus = null;
+        let garmentType = 'regular'; // 'regular' or 'ethnic'
+
+        // Initialize
+        function init() {
+            loadFolderImages();
+            loadPosesGrid();
+            setupEventListeners();
+        }
+
+        // Load images from local folder (model1.png - model10.png, bg1.png - bg10.png)
+        function loadFolderImages() {
+            // Load model images from folder
+            for (let i = 1; i <= 10; i++) {
+                folderModelImages.push({
+                    src: `model${i}.png`,
+                    type: 'folder'
+                });
+            }
+
+            // Load background images from folder
+            for (let i = 1; i <= 10; i++) {
+                folderBgImages.push({
+                    src: `bg${i}.png`,
+                    type: 'folder'
+                });
+            }
+
+            loadModelGrid();
+            loadBgGrid();
+        }
+
+        function loadModelGrid() {
+            const grid = document.getElementById('modelGrid');
+            grid.innerHTML = '';
+
+            // Only show folder images
+            folderModelImages.forEach((imgData) => {
+                const div = document.createElement('div');
+                div.className = 'image-item';
+                div.style.backgroundImage = `url(${imgData.src})`;
+
+                div.addEventListener('click', () => selectModel(imgData.src, div));
+                div.addEventListener('mouseenter', () => showHoverPreview(imgData.src));
+                div.addEventListener('mouseleave', hideHoverPreview);
+                
+                grid.appendChild(div);
+            });
+        }
+
+        function loadBgGrid() {
+            const grid = document.getElementById('bgGrid');
+            grid.innerHTML = '';
+
+            // Only show folder images
+            folderBgImages.forEach((imgData) => {
+                const div = document.createElement('div');
+                div.className = 'image-item';
+                div.style.backgroundImage = `url(${imgData.src})`;
+
+                div.addEventListener('click', () => selectBackground(imgData.src, div));
+                div.addEventListener('mouseenter', () => showHoverPreview(imgData.src));
+                div.addEventListener('mouseleave', hideHoverPreview);
+                
+                grid.appendChild(div);
+            });
+        }
+
+        async function selectModel(src, element) {
+            document.querySelectorAll('#modelGrid .image-item').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            // Convert to base64
+            uploadedImages.model = await imageToBase64(src);
+            checkReadyToGenerate();
+        }
+
+        async function selectBackground(src, element) {
+            document.querySelectorAll('#bgGrid .image-item').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            uploadedImages.background = await imageToBase64(src);
+            checkReadyToGenerate();
+        }
+
+        function imageToBase64(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'Anonymous';
+                img.onload = function() {
+                    const canvas = document.getElementById('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    resolve(canvas.toDataURL('image/jpeg', 0.9));
+                };
+                img.onerror = reject;
+                img.src = src;
+            });
+        }
+
+        function showHoverPreview(src) {
+            const preview = document.getElementById('hoverPreview');
+            const img = document.getElementById('hoverPreviewImg');
+            img.src = src;
+            preview.classList.add('active');
+        }
+
+        function hideHoverPreview() {
+            document.getElementById('hoverPreview').classList.remove('active');
+        }
+
+        function setupEventListeners() {
+            // Model upload - one-time use, no storage
+            document.getElementById('uploadModel').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const base64Data = event.target.result;
+                        
+                        // Directly set as selected model (no storage)
+                        uploadedImages.model = base64Data;
+                        
+                        // Clear all selections in grid
+                        document.querySelectorAll('#modelGrid .image-item').forEach(el => el.classList.remove('selected'));
+                        
+                        // Create preview element
+                        const grid = document.getElementById('modelGrid');
+                        const previewDiv = document.createElement('div');
+                        previewDiv.className = 'image-item selected';
+                        previewDiv.id = 'uploadedModelPreview';
+                        previewDiv.style.backgroundImage = `url(${base64Data})`;
+                        previewDiv.addEventListener('mouseenter', () => showHoverPreview(base64Data));
+                        previewDiv.addEventListener('mouseleave', hideHoverPreview);
+                        
+                        // Remove previous uploaded preview if exists
+                        const existingPreview = document.getElementById('uploadedModelPreview');
+                        if (existingPreview) existingPreview.remove();
+                        
+                        grid.appendChild(previewDiv);
+                        
+                        checkReadyToGenerate();
+                    };
+                    reader.readAsDataURL(file);
+                    e.target.value = '';
+                }
+            });
+
+            // Background upload - one-time use, no storage
+            document.getElementById('uploadBg').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const base64Data = event.target.result;
+                        
+                        // Directly set as selected background (no storage)
+                        uploadedImages.background = base64Data;
+                        
+                        // Clear all selections in grid
+                        document.querySelectorAll('#bgGrid .image-item').forEach(el => el.classList.remove('selected'));
+                        
+                        // Create preview element
+                        const grid = document.getElementById('bgGrid');
+                        const previewDiv = document.createElement('div');
+                        previewDiv.className = 'image-item selected';
+                        previewDiv.id = 'uploadedBgPreview';
+                        previewDiv.style.backgroundImage = `url(${base64Data})`;
+                        previewDiv.addEventListener('mouseenter', () => showHoverPreview(base64Data));
+                        previewDiv.addEventListener('mouseleave', hideHoverPreview);
+                        
+                        // Remove previous uploaded preview if exists
+                        const existingPreview = document.getElementById('uploadedBgPreview');
+                        if (existingPreview) existingPreview.remove();
+                        
+                        grid.appendChild(previewDiv);
+                        
+                        checkReadyToGenerate();
+                    };
+                    reader.readAsDataURL(file);
+                    e.target.value = '';
+                }
+            });
+
+            // Garment uploads
+            setupGarmentUpload('topFront', 'topFrontPreview');
+            setupGarmentUpload('topBack', 'topBackPreview');
+            setupGarmentUpload('bottomFront', 'bottomFrontPreview');
+            setupGarmentUpload('bottomBack', 'bottomBackPreview');
+
+            // Accessory uploads
+            setupAccessoryUpload('jewellery');
+            setupAccessoryUpload('shoes');
+
+            // Gender selector
+            document.querySelectorAll('.gender-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (this.dataset.gender) {
+                        // Gender selection for poses
+                        document.querySelectorAll('[data-gender]').forEach(el => el.classList.remove('active'));
+                        this.classList.add('active');
+                        currentGender = this.dataset.gender;
+                        loadPosesGrid();
+                    } else if (this.dataset.garmentType) {
+                        // Garment type selection
+                        document.querySelectorAll('[data-garment-type]').forEach(el => el.classList.remove('active'));
+                        this.classList.add('active');
+                        garmentType = this.dataset.garmentType;
+                        toggleBottomGarmentFields();
+                        checkReadyToGenerate();
+                    }
+                });
+            });
+
+            // Generate button
+            document.getElementById('generateBtn').addEventListener('click', generateVirtualTryOn);
+
+            // Closeup controls
+            document.querySelectorAll('.btn-closeup-option').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.btn-closeup-option').forEach(el => el.classList.remove('active'));
+                    this.classList.add('active');
+                    closeupFocus = this.dataset.focus;
+                    updateCloseupButton();
+                });
+            });
+
+            document.getElementById('generateCloseupBtn').addEventListener('click', generateCloseupShots);
+        }
+
+        function addCustomPose() {
+            const poseName = document.getElementById('customPoseName').value.trim();
+            const poseDesc = document.getElementById('customPoseDesc').value.trim();
+
+            if (!poseName || !poseDesc) {
+                alert('Please enter both pose name and description');
+                return;
+            }
+
+            customPoses.push({
+                id: Date.now(),
+                name: poseName,
+                desc: poseDesc,
+                custom: true
+            });
+
+            localStorage.setItem('customPoses', JSON.stringify(customPoses));
+            
+            // Clear inputs
+            document.getElementById('customPoseName').value = '';
+            document.getElementById('customPoseDesc').value = '';
+            
+            loadPosesGrid();
+        }
+
+        function setupGarmentUpload(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        preview.src = event.target.result;
+                        preview.style.display = 'block';
+                        preview.parentElement.classList.add('has-image');
+                        
+                        const key = inputId.replace(/([A-Z])/g, '_$1').toLowerCase();
+                        uploadedImages[key] = event.target.result;
+                        updateCompositeImage();
+                        checkReadyToGenerate();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function setupAccessoryUpload(inputId) {
+            const input = document.getElementById(inputId);
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        uploadedImages[inputId] = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function loadPosesGrid() {
+            const grid = document.getElementById('posesGrid');
+            grid.innerHTML = '';
+            const poses = currentGender === 'male' ? malePoses : femalePoses;
+            const allPoses = [...poses, ...customPoses];
+
+            allPoses.forEach(pose => {
+                const card = document.createElement('div');
+                card.className = 'pose-card';
+                if (selectedPoses.includes(pose.id)) {
+                    card.classList.add('selected');
+                }
+                card.innerHTML = `
+                    <div class="pose-name">${pose.name}${pose.custom ? ' 🔧' : ''}</div>
+                    <div class="pose-desc">${pose.desc}</div>
+                `;
+                card.addEventListener('click', () => togglePose(pose.id, card));
+                grid.appendChild(card);
+            });
+        }
+
+        function togglePose(poseId, card) {
+            const index = selectedPoses.indexOf(poseId);
+            if (index > -1) {
+                selectedPoses.splice(index, 1);
+                card.classList.remove('selected');
+            } else {
+                if (selectedPoses.length >= 10) {
+                    alert('Maximum 10 poses allowed');
+                    return;
+                }
+                selectedPoses.push(poseId);
+                card.classList.add('selected');
+            }
+            document.getElementById('poseCount').textContent = selectedPoses.length;
+            checkReadyToGenerate();
+        }
+
+        function checkReadyToGenerate() {
+            const hasModel = uploadedImages.model !== null;
+            
+            let hasGarments;
+            if (garmentType === 'ethnic') {
+                // For ethnic wear, only top front and back are required
+                hasGarments = uploadedImages.top_front && uploadedImages.top_back;
+            } else {
+                // For regular wear, all four garments are required
+                hasGarments = uploadedImages.top_front && uploadedImages.top_back && 
+                             uploadedImages.bottom_front && uploadedImages.bottom_back;
+            }
+            
+            const hasBg = uploadedImages.background !== null;
+            const hasPoses = selectedPoses.length > 0;
+
+            document.getElementById('generateBtn').disabled = !(hasModel && hasGarments && hasBg && hasPoses);
+        }
+
+        function toggleBottomGarmentFields() {
+            const bottomFrontUpload = document.getElementById('bottomFrontUpload');
+            const bottomBackUpload = document.getElementById('bottomBackUpload');
+            
+            if (garmentType === 'ethnic') {
+                // Hide bottom garment uploads for ethnic wear
+                bottomFrontUpload.style.display = 'none';
+                bottomBackUpload.style.display = 'none';
+                // Clear bottom garment data
+                uploadedImages.bottom_front = null;
+                uploadedImages.bottom_back = null;
+            } else {
+                // Show bottom garment uploads for regular wear
+                bottomFrontUpload.style.display = 'block';
+                bottomBackUpload.style.display = 'block';
+            }
+        }
+
+        async function updateCompositeImage() {
+            let canCreateComposite = false;
+            
+            if (garmentType === 'ethnic') {
+                canCreateComposite = uploadedImages.top_front && uploadedImages.top_back;
+            } else {
+                canCreateComposite = uploadedImages.top_front && uploadedImages.top_back && 
+                                    uploadedImages.bottom_front && uploadedImages.bottom_back;
+            }
+            
+            if (canCreateComposite) {
+                compositeImage = await createComposite();
+                const preview = document.getElementById('compositePreview');
+                const img = document.getElementById('compositeImg');
+                img.src = compositeImage;
+                preview.style.display = 'block';
+            }
+        }
+
+        async function createComposite() {
+            return new Promise((resolve) => {
+                const canvas = document.getElementById('canvas');
+                const ctx = canvas.getContext('2d');
+
+                let images;
+                if (garmentType === 'ethnic') {
+                    // For ethnic wear, only use top front and back (duplicate for 2x2 grid)
+                    images = [
+                        uploadedImages.top_front,
+                        uploadedImages.top_back,
+                        uploadedImages.top_front, // Duplicate front for bottom-left
+                        uploadedImages.top_back   // Duplicate back for bottom-right
+                    ];
+                } else {
+                    images = [
+                        uploadedImages.top_front,
+                        uploadedImages.top_back,
+                        uploadedImages.bottom_front,
+                        uploadedImages.bottom_back
+                    ];
+                }
+
+                let loaded = 0;
+                const imgElements = [];
+
+                images.forEach((src, index) => {
+                    const img = new Image();
+                    img.onload = function() {
+                        imgElements[index] = img;
+                        loaded++;
+
+                        if (loaded === 4) {
+                            const maxWidth = Math.max(imgElements[0].width, imgElements[1].width);
+                            const maxHeight = Math.max(imgElements[0].height, imgElements[1].height);
+
+                            canvas.width = maxWidth * 2;
+                            canvas.height = maxHeight * 2;
+
+                            // Draw with contain to preserve aspect ratio
+                            function drawContain(img, x, y, w, h) {
+                                const imgRatio = img.width / img.height;
+                                const boxRatio = w / h;
+                                let drawWidth, drawHeight, offsetX, offsetY;
+
+                                if (imgRatio > boxRatio) {
+                                    drawWidth = w;
+                                    drawHeight = w / imgRatio;
+                                    offsetX = 0;
+                                    offsetY = (h - drawHeight) / 2;
+                                } else {
+                                    drawHeight = h;
+                                    drawWidth = h * imgRatio;
+                                    offsetX = (w - drawWidth) / 2;
+                                    offsetY = 0;
+                                }
+
+                                ctx.drawImage(img, x + offsetX, y + offsetY, drawWidth, drawHeight);
+                            }
+
+                            ctx.fillStyle = '#f5f5f5';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                            drawContain(imgElements[0], 0, 0, maxWidth, maxHeight);
+                            drawContain(imgElements[1], maxWidth, 0, maxWidth, maxHeight);
+                            drawContain(imgElements[2], 0, maxHeight, maxWidth, maxHeight);
+                            drawContain(imgElements[3], maxWidth, maxHeight, maxWidth, maxHeight);
+
+                            resolve(canvas.toDataURL('image/jpeg', 0.9));
+                        }
+                    };
+                    img.src = src;
+                });
+            });
+        }
+
+        function getShotInstructions(index, total) {
+            return `FULL BODY SHOT: Capture entire model from head to toe with balanced framing. Show complete outfit clearly.`;
+        }
+
+        function base64ToImage(base64String) {
+            return base64String.split(',')[1];
+        }
+
+        async function generateSingleImage(compositeCloth, poseId, index, total) {
+            const allPoses = [...malePoses, ...femalePoses, ...customPoses];
+            const pose = allPoses.find(p => p.id === poseId);
+            
+            const loadingText = document.getElementById('loadingText');
+            const loadingSubtext = document.getElementById('loadingSubtext');
+            loadingText.textContent = `Generating ${index + 1} of ${total}: ${pose.name}`;
+            loadingSubtext.textContent = 'This may take 30-60 seconds...';
+
+            const shotInstruction = getShotInstructions(index, total);
+
+            let accessoryInstructions = '';
+            if (uploadedImages.jewellery || document.getElementById('jewelleryPrompt').value) {
+                accessoryInstructions += `\nJEWELLERY: ${document.getElementById('jewelleryPrompt').value || 'Use uploaded jewellery'}.`;
+            }
+            if (uploadedImages.shoes || document.getElementById('shoesPrompt').value) {
+                accessoryInstructions += `\nFOOTWEAR: ${document.getElementById('shoesPrompt').value || 'Use uploaded footwear'}.`;
+            }
+
+            const prompt = `
+PROFESSIONAL FASHION PHOTOGRAPHY — VIRTUAL TRY-ON
+
+INPUT REFERENCES:
+- MODEL: Preserve the exact face, hairstyle, body proportions, and skin tone. Model height and proportions must remain identical across all generated images.
+- GARMENT IMAGES: Use ONLY the clothing from the references — ignore mannequins, stands, hangers, shadows, or any background objects completely.
+- BACKGROUND: Use the provided scene as-is with matching lighting, perspective, and depth for seamless realism.
+${accessoryInstructions}
+
+OBJECTIVE:
+Generate a single photorealistic fashion image where the garments appear naturally worn by the model in the background — as if photographed professionally in a real studio or on-location shoot.
+
+CRITICAL GARMENT REQUIREMENTS:
+✓ EXACT garment replication — same color, pattern, embroidery, and stitching.  
+✓ Exclude all mannequin or stand elements completely.  
+✓ Maintain proper garment layering, natural fit, and fabric drape physics.  
+✓ No alterations or reinterpretation of the outfit design.  
+
+MODEL CONSISTENCY:
+✓ Preserve identical face, hairstyle, proportions, and natural expression.  
+✓ Keep height and body scale consistent across all images.  
+✓ Maintain realistic lighting direction, tone, and color temperature matching the background.  
+
+${cameraInstruction}
+
+POSE EXECUTION:
+"${pose.name}: ${pose.desc}"  
+Natural, confident, and editorial-style posture — not stiff or mannequin-like.  
+
+BACKGROUND INTEGRATION:
+✓ Perfectly match lighting between model and environment.  
+✓ Ensure natural shadow placement and accurate floor contact.  
+✓ Maintain realistic spatial depth and subtle background blur for cinematic realism.  
+
+PHOTOGRAPHY STYLE:
+✓ Editorial / magazine-grade fashion aesthetic.  
+✓ Sharp focus on garment details and accessories.  
+✓ Cinematic lighting with professional color grading and depth.  
+✓ Balanced contrast, clean tones, and well-framed composition.  
+
+Generate ONE cohesive, mannequin-free, photorealistic image — perfectly integrated, proportionally accurate, and styled as if shot by a high-end fashion photographer.
+`;
+
+
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${API_KEY}`;
+
+            const parts = [
+                { text: prompt },
+                { inline_data: { mime_type: "image/jpeg", data: base64ToImage(uploadedImages.model) } },
+                { inline_data: { mime_type: "image/jpeg", data: base64ToImage(compositeCloth) } },
+                { inline_data: { mime_type: "image/jpeg", data: base64ToImage(uploadedImages.background) } }
+            ];
+
+            const requestBody = {
+                contents: [{ parts }],
+                generationConfig: {
+                    temperature: 0.4,
+                    topK: 32,
+                    topP: 1,
+                    maxOutputTokens: 4096,
+                    responseModalities: ["IMAGE"]
+                }
+            };
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody)
+            });
+
+            const data = await response.json();
+
+            if (data.candidates && data.candidates[0].content.parts[0].inlineData) {
+                const imageData = data.candidates[0].content.parts[0].inlineData.data;
+                return {
+                    success: true,
+                    imageData: 'data:image/jpeg;base64,' + imageData,
+                    poseName: pose.name,
+                    shotType: 'Full Body'
+                };
+            } else {
+                throw new Error('No image generated in response');
+            }
+        }
+
+        async function generateVirtualTryOn() {
+            const loading = document.getElementById('loading');
+            const resultsGrid = document.getElementById('resultsGrid');
+            const generateBtn = document.getElementById('generateBtn');
+
+            // Reset API state
+            selectedImagesForCloseup = [];
+            closeupFocus = null;
+            document.querySelectorAll('.btn-closeup-option').forEach(el => el.classList.remove('active'));
+            document.getElementById('closeupControls').classList.remove('active');
+
+            generateBtn.disabled = true;
+            loading.style.display = 'block';
+            resultsGrid.innerHTML = '';
+
+            try {
+                const finalComposite = compositeImage || await createComposite();
+                let successCount = 0;
+
+                for (let i = 0; i < selectedPoses.length; i++) {
+                    try {
+                        const result = await generateSingleImage(finalComposite, selectedPoses[i], i, selectedPoses.length);
+
+                        if (result.success) {
+                            // Store for bulk download
+                            allGeneratedImages.push({
+                                data: result.imageData,
+                                filename: `${result.poseName.replace(/\s+/g, '_')}_${Date.now()}.jpg`
+                            });
+                            
+                            const card = document.createElement('div');
+                            card.className = 'result-card';
+                            card.dataset.imageData = result.imageData;
+                            card.innerHTML = `
+                                <div class="result-header">
+                                    <div class="result-title">${result.shotType}: ${result.poseName}</div>
+                                </div>
+                                <img src="${result.imageData}" class="result-img" alt="${result.poseName}">
+                                <button class="btn-select-image" onclick="toggleImageSelection(this)">
+                                    Select for Closeup
+                                </button>
+                                <button class="btn-download" onclick="downloadImage('${result.imageData}', '${result.poseName}')">
+                                    Download Image
+                                </button>
+                            `;
+                            resultsGrid.appendChild(card);
+                            successCount++;
+                        }
+                    } catch (error) {
+                        console.error(`Error generating pose ${selectedPoses[i]}:`, error);
+                    }
+                }
+
+                alert(`Generation complete! ${successCount} images generated.`);
+                
+                // Enable download all button if images were generated
+                document.getElementById('downloadAllBtn').disabled = allGeneratedImages.length === 0;
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+                console.error('Full error details:', error);
+                
+                // Log detailed error information
+                if (error.response) {
+                    console.error('Response error:', await error.response.text());
+                }
+            } finally {
+                loading.style.display = 'none';
+                generateBtn.disabled = false;
+            }
+        }
+
+        function downloadImage(dataUrl, poseName) {
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = `${poseName.replace(/\s+/g, '_')}_${Date.now()}.jpg`;
+            link.click();
+        }
+
+        function toggleImageSelection(button) {
+            const card = button.closest('.result-card');
+            const imageData = card.dataset.imageData;
+            
+            const index = selectedImagesForCloseup.findIndex(img => img.data === imageData);
+            
+            if (index > -1) {
+                // Deselect
+                selectedImagesForCloseup.splice(index, 1);
+                button.classList.remove('selected');
+                button.textContent = 'Select for Closeup';
+            } else {
+                // Select
+                selectedImagesForCloseup.push({
+                    data: imageData,
+                    card: card
+                });
+                button.classList.add('selected');
+                button.textContent = 'Selected ✓';
+            }
+            
+            updateCloseupControls();
+        }
+
+        function updateCloseupControls() {
+            const controls = document.getElementById('closeupControls');
+            const count = document.getElementById('selectedCount');
+            
+            count.textContent = selectedImagesForCloseup.length;
+            
+            if (selectedImagesForCloseup.length > 0) {
+                controls.classList.add('active');
+            } else {
+                controls.classList.remove('active');
+            }
+            
+            updateCloseupButton();
+        }
+
+        function updateCloseupButton() {
+            const btn = document.getElementById('generateCloseupBtn');
+            btn.disabled = !(selectedImagesForCloseup.length > 0 && closeupFocus !== null);
+        }
+
+        async function generateCloseupShots() {
+            const loading = document.getElementById('loading');
+            const generateBtn = document.getElementById('generateCloseupBtn');
+            
+            generateBtn.disabled = true;
+            loading.style.display = 'block';
+            
+            const loadingText = document.getElementById('loadingText');
+            const loadingSubtext = document.getElementById('loadingSubtext');
+
+            try {
+                let successCount = 0;
+
+                for (let i = 0; i < selectedImagesForCloseup.length; i++) {
+                    const selectedImg = selectedImagesForCloseup[i];
+                    
+                    loadingText.textContent = `Generating closeup ${i + 1} of ${selectedImagesForCloseup.length}`;
+                    loadingSubtext.textContent = 'Creating detailed closeup shot...';
+
+                    try {
+                        const result = await generateCloseupFromImage(selectedImg.data, closeupFocus, i);
+
+                        if (result.success) {
+                            // Store for bulk download
+                            allGeneratedImages.push({
+                                data: result.imageData,
+                                filename: `Closeup_${closeupFocus}_${Date.now()}_${i}.jpg`
+                            });
+                            
+                            const card = document.createElement('div');
+                            card.className = 'result-card';
+                            card.innerHTML = `
+                                <div class="result-header">
+                                    <div class="result-title">Closeup: ${closeupFocus === 'top' ? 'Top Garment' : 'Bottom Garment'}</div>
+                                </div>
+                                <img src="${result.imageData}" class="result-img" alt="Closeup">
+                                <button class="btn-download" onclick="downloadImage('${result.imageData}', 'Closeup_${closeupFocus}_${Date.now()}')">
+                                    Download Image
+                                </button>
+                            `;
+                            document.getElementById('resultsGrid').appendChild(card);
+                            successCount++;
+                        }
+                    } catch (error) {
+                        console.error(`Error generating closeup ${i}:`, error);
+                    }
+                }
+
+                alert(`Closeup generation complete! ${successCount} closeup images generated.`);
+                
+                // Enable download all button
+                document.getElementById('downloadAllBtn').disabled = allGeneratedImages.length === 0;
+
+                // Clear selections
+                selectedImagesForCloseup.forEach(img => {
+                    const btn = img.card.querySelector('.btn-select-image');
+                    btn.classList.remove('selected');
+                    btn.textContent = 'Select for Closeup';
+                });
+                selectedImagesForCloseup = [];
+                updateCloseupControls();
+                
+                // Reset focus selection
+                document.querySelectorAll('.btn-closeup-option').forEach(el => el.classList.remove('active'));
+                closeupFocus = null;
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+                console.error('Error:', error);
+            } finally {
+                loading.style.display = 'none';
+                generateBtn.disabled = false;
+            }
+        }
+
+        async function generateCloseupFromImage(imageData, focus, index) {
+            const focusInstruction = focus === 'top' 
+    ? 'Crop or zoom into the upper body — include only the head, neck, shoulders, and torso (down to the waist). Maintain exact proportions and framing realism.'
+    : 'Crop or zoom into the lower body — include hips to knees clearly (ideal for showcasing skirts, shorts, or lower garment fit). Maintain natural proportions and framing realism.';
+
+const prompt = `
+PROFESSIONAL FASHION PHOTOGRAPHY — CLOSE-UP FRAME GENERATION
+
+INPUT: A full-body professional fashion image of the model wearing the outfit.
+
+OBJECTIVE:
+Generate a close-up version of the SAME image, preserving every original detail while framing only the specified body region.
+
+CROPPING INSTRUCTIONS:
+${focusInstruction}
+
+CRITICAL REQUIREMENTS:
+✓ Use the EXACT same image — same model, face, pose, outfit, lighting, and background.
+✓ Do NOT regenerate or modify — only create a zoomed-in crop version of the original.
+✓ Maintain identical colors, shadows, and image quality.
+✓ Preserve realism — depth of field, sharpness, and lighting direction must remain unchanged.
+✓ ${focus === 'top' 
+    ? 'Visible area: Head to torso (shoulders/chest to waist).' 
+    : 'Visible area: Hips to knees (clear view of garment fit and fabric).'
+}
+✓ No new expressions, poses, or body proportions — perfect match with the source.
+
+FINAL OUTPUT:
+A realistic close-up frame of the original full-body shot — proportionally accurate, naturally zoomed, and visually consistent with high-end fashion photography standards.
+`;
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${API_KEY}`;
+
+            const parts = [
+                { text: prompt },
+                { inline_data: { mime_type: "image/jpeg", data: base64ToImage(imageData) } }
+            ];
+
+            const requestBody = {
+                contents: [{ parts }],
+                generationConfig: {
+                    temperature: 0.3,
+                    topK: 32,
+                    topP: 1,
+                    maxOutputTokens: 4096,
+                    responseModalities: ["IMAGE"]
+                }
+            };
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody)
+            });
+
+            const data = await response.json();
+
+            if (data.candidates && data.candidates[0].content.parts[0].inlineData) {
+                const imageData = data.candidates[0].content.parts[0].inlineData.data;
+                return {
+                    success: true,
+                    imageData: 'data:image/jpeg;base64,' + imageData
+                };
+            } else {
+                throw new Error('No image generated in response');
+            }
+        }
+
+        async function downloadAllAsZip() {
+            if (allGeneratedImages.length === 0) {
+                alert('No images to download');
+                return;
+            }
+
+            const zip = new JSZip();
+            const loadingText = document.getElementById('loadingText');
+            const loadingSubtext = document.getElementById('loadingSubtext');
+            const loading = document.getElementById('loading');
+            
+            loading.style.display = 'block';
+            loadingText.textContent = 'Preparing ZIP file...';
+            loadingSubtext.textContent = `Adding ${allGeneratedImages.length} images to archive`;
+
+            try {
+                // Add all images to zip
+                for (let i = 0; i < allGeneratedImages.length; i++) {
+                    const img = allGeneratedImages[i];
+                    const base64Data = img.data.split(',')[1]; // Remove data:image/jpeg;base64, prefix
+                    zip.file(img.filename, base64Data, { base64: true });
+                    
+                    loadingSubtext.textContent = `Adding image ${i + 1} of ${allGeneratedImages.length}`;
+                }
+
+                loadingText.textContent = 'Generating ZIP file...';
+                loadingSubtext.textContent = 'This may take a moment';
+
+                // Generate zip file
+                const content = await zip.generateAsync({ 
+                    type: 'blob',
+                    compression: 'DEFLATE',
+                    compressionOptions: { level: 6 }
+                });
+
+                // Download zip
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = `fashion_tryon_${Date.now()}.zip`;
+                link.click();
+                
+                URL.revokeObjectURL(link.href);
+                
+                loadingText.textContent = 'Download Complete!';
+                loadingSubtext.textContent = 'ZIP file has been downloaded';
+                
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                }, 1500);
+
+            } catch (error) {
+                console.error('Error creating ZIP:', error);
+                alert('Error creating ZIP file: ' + error.message);
+                loading.style.display = 'none';
+            }
+        }
+
+        // Initialize app
+        init();
+    </script>
+</body>
+</html>
