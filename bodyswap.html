@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI ModelSwap Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #000000;
+            --color-primary-hover: #000000;
+            --color-primary-active: #1d7478;
+            --color-bg: #fcfcf9;
+            --color-surface: #ffffff;
+            --color-text: #134252;
+            --color-text-secondary: #626c71;
+            --color-border: rgba(94, 82, 64, 0.2);
+            --color-secondary: rgba(94, 82, 64, 0.12);
+            --color-secondary-hover: rgba(94, 82, 64, 0.2);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            --radius-base: 8px;
+            --radius-lg: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 48px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: var(--color-text-secondary);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+        }
+
+        @media (max-width: 968px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 24px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+        }
+
+        .section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 16px;
+        }
+
+        .label {
+            display: block;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--color-text);
+            margin-bottom: 12px;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            background: var(--color-surface);
+            font-size: 14px;
+            color: var(--color-text);
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        input[type="file"]:hover {
+            border-color: var(--color-primary);
+        }
+
+        input[type="file"]:focus {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
+        input[type="file"]::file-selector-button {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            margin-right: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .preview-box {
+            margin-top: 16px;
+            width: 100%;
+            min-height: 160px;
+            background: var(--color-bg);
+            border: 2px dashed var(--color-border);
+            border-radius: var(--radius-base);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            max-height: 240px;
+        }
+
+        .preview-box.file-list {
+            align-items: stretch;
+        }
+
+        .preview-placeholder {
+            color: var(--color-text-secondary);
+            font-size: 14px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            margin-bottom: 8px;
+        }
+
+        .file-item img {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-right: 12px;
+        }
+
+        .file-name {
+            font-size: 14px;
+            color: var(--color-text);
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: var(--radius-base);
+        }
+
+        .divider {
+            text-align: center;
+            color: var(--color-text-secondary);
+            margin: 16px 0;
+            font-size: 14px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            background: var(--color-surface);
+            color: var(--color-text);
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 80px;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+            border-color: var(--color-primary);
+        }
+
+        textarea::placeholder {
+            color: var(--color-text-secondary);
+            opacity: 0.6;
+        }
+
+        .btn {
+            width: 100%;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: var(--radius-base);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 24px;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: var(--color-primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(50, 184, 198, 0.3);
+        }
+
+        .btn:active:not(:disabled) {
+            background: var(--color-primary-active);
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .results-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .output-container {
+            width: 100%;
+            min-height: 400px;
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            padding: 16px;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(50, 184, 198, 0.2);
+            border-radius: 50%;
+            border-top: 4px solid var(--color-primary);
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            margin: auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-item {
+            position: relative;
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .result-item img {
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+            display: block;
+        }
+
+        .download-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .download-btn:hover {
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .download-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 16px;
+            border-radius: var(--radius-base);
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        #messageBox {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100%);
+            background: #dc2626;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 0 0 var(--radius-base) var(--radius-base);
+            box-shadow: var(--shadow-md);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+            font-weight: 500;
+        }
+
+        #messageBox.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI ModelSwap Studio</h1>
+            <p class="subtitle">Swap models and backgrounds across multiple photos at once</p>
+        </header>
+
+        <main class="grid">
+            <div>
+                <div class="section">
+                    <h2 class="section-title">1. Upload Original Photos</h2>
+                    <label for="imageUpload" class="label">Select multiple images</label>
+                    <input type="file" id="imageUpload" accept="image/png, image/jpeg, image/webp" multiple>
+                    
+                    <div id="originalImagePreviewArea" class="preview-box file-list">
+                        <span id="originalPreviewPlaceholder" class="preview-placeholder">File list will appear here</span>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2 class="section-title">2. Define New Model</h2>
+                    
+                    <label for="targetImageUpload" class="label">Upload target model photo (optional)</label>
+                    <input type="file" id="targetImageUpload" accept="image/png, image/jpeg, image/webp">
+                    
+                    <div class="preview-box">
+                        <img id="targetImagePreview" src="" alt="Target model preview" class="preview-image hidden">
+                        <span id="targetPreviewPlaceholder" class="preview-placeholder">Target model preview</span>
+                    </div>
+
+                    <p class="divider">— OR —</p>
+
+                    <label for="modelDescription" class="label">Describe the desired model (optional)</label>
+                    <textarea id="modelDescription" placeholder="e.g., 'A professional-looking woman with long brown hair, smiling brightly'"></textarea>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">3. Define New Background</h2>
+                    
+                    <label for="bgImageUpload" class="label">Upload background photo (optional)</label>
+                    <input type="file" id="bgImageUpload" accept="image/png, image/jpeg, image/webp">
+                    
+                    <div class="preview-box">
+                        <img id="bgImagePreview" src="" alt="Background preview" class="preview-image hidden" style="opacity: 0.8;">
+                        <span id="bgPreviewPlaceholder" class="preview-placeholder">Background preview</span>
+                    </div>
+                </div>
+                
+                <button id="generateBtn" class="btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19 14.5m-4.5-11.396c.251.023.501.05.75.082M19 14.5v.218c0 .13.02.258.058.385a1.81 1.81 0 01-2.427 2.053M19 14.5A2.25 2.25 0 0016.75 12.25h-1.5a2.25 2.25 0 00-2.25 2.25v.218A2.25 2.25 0 0012 16.75c-2.42 0-4.398 1.978-4.398 4.398s1.978 4.398 4.398 4.398 4.398-1.978 4.398-4.398M19 14.5c.13.02.258.058.385.058a1.81 1.81 0 002.053-2.427M5 14.5v.218c0 .13-.02.258-.058.385a1.81 1.81 0 002.427 2.053M5 14.5A2.25 2.25 0 017.25 12.25h1.5a2.25 2.25 0 012.25 2.25v.218A2.25 2.25 0 0012 16.75c2.42 0 4.398 1.978 4.398 4.398s-1.978 4.398-4.398 4.398-4.398-1.978-4.398-4.398M5 14.5c-.13.02-.258.058-.385.058a1.81 1.81 0 01-2.053-2.427" />
+                    </svg>
+                    <span>Swap Model & Background</span>
+                </button>
+            </div>
+            
+            <div class="results-section">
+                <h2 class="section-title">4. Results Gallery</h2>
+                
+                <div id="outputContainer" class="output-container">
+                    <div id="loadingSpinner" class="spinner hidden"></div>
+                    <div id="outputPlaceholder" class="flex-center">
+                        <span class="preview-placeholder">Your new images will appear here</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div id="messageBox">
+        <span id="messageText"></span>
+    </div>
+    <script src="config.js"></script>
+    <script type="module">
+        const imageUpload = document.getElementById('imageUpload');
+        const originalImagePreviewArea = document.getElementById('originalImagePreviewArea');
+        const originalPreviewPlaceholder = document.getElementById('originalPreviewPlaceholder');
+        
+        const targetImageUpload = document.getElementById('targetImageUpload');
+        const targetImagePreview = document.getElementById('targetImagePreview');
+        const targetPreviewPlaceholder = document.getElementById('targetPreviewPlaceholder');
+        const modelDescription = document.getElementById('modelDescription');
+
+        const bgImageUpload = document.getElementById('bgImageUpload');
+        const bgImagePreview = document.getElementById('bgImagePreview');
+        const bgPreviewPlaceholder = document.getElementById('bgPreviewPlaceholder');
+
+        const generateBtn = document.getElementById('generateBtn');
+        const outputContainer = document.getElementById('outputContainer');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const outputPlaceholder = document.getElementById('outputPlaceholder');
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+
+        let originalImageBase64List = [];
+        let targetImageBase64 = null;
+        let backgroundImageBase64 = null;
+
+        imageUpload.addEventListener('change', async (event) => {
+            const files = event.target.files;
+            if (!files || files.length === 0) {
+                originalImageBase64List = [];
+                originalImagePreviewArea.innerHTML = '';
+                originalImagePreviewArea.appendChild(originalPreviewPlaceholder);
+                originalPreviewPlaceholder.classList.remove('hidden');
+                return;
+            }
+
+            originalImageBase64List = [];
+            originalImagePreviewArea.innerHTML = '';
+            originalPreviewPlaceholder.classList.add('hidden');
+            
+            const filePromises = Array.from(files).map(file => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const base64Data = e.target.result.split(',')[1];
+                        const previewWrapper = document.createElement('div');
+                        previewWrapper.className = 'file-item';
+                        const previewImg = document.createElement('img');
+                        previewImg.src = e.target.result;
+                        const fileName = document.createElement('span');
+                        fileName.textContent = file.name;
+                        fileName.className = 'file-name';
+                        previewWrapper.appendChild(previewImg);
+                        previewWrapper.appendChild(fileName);
+                        resolve({ base64Data, previewElement: previewWrapper });
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            try {
+                const results = await Promise.all(filePromises);
+                results.forEach(result => {
+                    originalImageBase64List.push(result.base64Data);
+                    originalImagePreviewArea.appendChild(result.previewElement);
+                });
+            } catch (error) {
+                console.error("Error reading files:", error);
+                showMessage("There was an error reading some files.");
+            }
+        });
+        
+        targetImageUpload.addEventListener('change', (event) => handleSingleImageUpload(event, targetImagePreview, targetPreviewPlaceholder, (base64) => {
+             targetImageBase64 = base64;
+             modelDescription.value = '';
+        }));
+
+        bgImageUpload.addEventListener('change', (event) => handleSingleImageUpload(event, bgImagePreview, bgPreviewPlaceholder, (base64) => {
+            backgroundImageBase64 = base64;
+        }));
+
+        function handleSingleImageUpload(event, previewEl, placeholderEl, callback) {
+            const file = event.target.files[0];
+            if (!file) {
+                callback(null);
+                previewEl.classList.add('hidden');
+                placeholderEl.classList.remove('hidden');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewEl.src = e.target.result;
+                previewEl.classList.remove('hidden');
+                placeholderEl.classList.add('hidden');
+                callback(e.target.result.split(',')[1]);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        modelDescription.addEventListener('input', () => {
+            if (modelDescription.value.trim() !== '') {
+                targetImageUpload.value = null;
+                targetImageBase64 = null;
+                targetImagePreview.classList.add('hidden');
+                targetPreviewPlaceholder.classList.remove('hidden');
+            }
+        });
+
+        function showMessage(message) {
+            messageText.textContent = message;
+            messageBox.classList.add('show');
+            setTimeout(() => messageBox.classList.remove('show'), 3000);
+        }
+
+        generateBtn.addEventListener('click', async () => {
+            if (originalImageBase64List.length === 0) {
+                showMessage("Please upload at least one original image.");
+                return;
+            }
+            if (!targetImageBase64 && modelDescription.value.trim() === '') {
+                showMessage("Please define the target model (Image or Description).");
+                return;
+            }
+
+            setLoading(true);
+            let hasFailures = false;
+
+            for (const originalBase64 of originalImageBase64List) {
+                try {
+                    const resultBase64 = await callGeminiApi(originalBase64);
+                    if (resultBase64) {
+                        appendResultToGallery(resultBase64);
+                    } else {
+                        hasFailures = true;
+                        appendErrorToGallery("An image failed to process.");
+                    }
+                } catch (error) {
+                    hasFailures = true;
+                    appendErrorToGallery(`Error: ${error.message}`);
+                }
+            }
+            
+            setLoading(false);
+            if (hasFailures) showMessage("Some images failed to process.");
+        });
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                generateBtn.disabled = true;
+                outputContainer.innerHTML = ''; 
+                outputContainer.appendChild(loadingSpinner);
+                loadingSpinner.classList.remove('hidden');
+            } else {
+                generateBtn.disabled = false;
+                loadingSpinner.classList.add('hidden');
+                if (outputContainer.children.length === 1 && outputContainer.firstChild === loadingSpinner) {
+                     outputContainer.innerHTML = '';
+                     const placeholder = document.createElement('div');
+                     placeholder.className = 'flex-center';
+                     placeholder.innerHTML = '<span class="preview-placeholder">Your new images will appear here</span>';
+                     outputContainer.appendChild(placeholder);
+                }
+            }
+        }
+
+        async function callGeminiApi(originalBase64, retryCount = 0) {
+            const apiKey = GEMINI_API_KEY;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${apiKey}`;
+            
+            let backgroundRule = "3. DO NOT change the background from the 'SOURCE' image.";
+            if (backgroundImageBase64) {
+                backgroundRule = "3. REPLACE the entire background of the 'SOURCE' image with the provided 'BACKGROUND' image. Ensure realistic lighting and shadows of the new model on the new background.";
+            }
+
+            let systemPrompt = `You are an expert e-commerce photo editor. You will be given a 'SOURCE' image and instructions for a desired model ${backgroundImageBase64 ? 'and a desired BACKGROUND' : ''}.
+            
+**CRITICAL RULES:**
+1. DO NOT change the clothes, outfit, or apparel from the 'SOURCE' image. The clothes must remain exactly the same.
+2. DO NOT change the pose from the 'SOURCE' image.
+${backgroundRule}
+4. The final image should be a NEW model wearing the 'SOURCE' clothes in the 'SOURCE' pose.
+`;
+
+            const parts = [{ text: systemPrompt }];
+            
+            parts.push({ text: "IMAGE 1: 'SOURCE' Image (Contains clothes and pose to keep)" });
+            parts.push({ inlineData: { mimeType: "image/jpeg", data: originalBase64 } });
+
+            if (backgroundImageBase64) {
+                parts.push({ text: "IMAGE 2: 'BACKGROUND' Image (Use this as the new background)" });
+                parts.push({ inlineData: { mimeType: "image/jpeg", data: backgroundImageBase64 } });
+            }
+
+            if (targetImageBase64) {
+                parts.push({ text: "IMAGE 3: 'TARGET' Model (Extract face/hair/body type from this)" });
+                parts.push({ inlineData: { mimeType: "image/jpeg", data: targetImageBase64 } });
+                if (modelDescription.value.trim() !== '') {
+                    parts.push({ text: `Model Refinements: ${modelDescription.value.trim()}` });
+                }
+            } else if (modelDescription.value.trim() !== '') {
+                parts.push({ text: `Generate a new model based on this description: ${modelDescription.value.trim()}` });
+            }
+
+            const payload = {
+                contents: [{ parts: parts }],
+                generationConfig: { responseModalities: ['IMAGE'] },
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    if ((response.status === 429 || response.status >= 500) && retryCount < 3) {
+                        await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000 + Math.random() * 1000));
+                        return callGeminiApi(originalBase64, retryCount + 1);
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                return base64Data || null;
+
+            } catch (error) {
+                console.error("API Call Error:", error);
+                return null;
+            }
+        }
+        
+        function appendResultToGallery(base64Data) {
+            const imageUrl = `data:image/png;base64,${base64Data}`;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'result-item';
+            
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            
+            const downloadLink = document.createElement('a');
+            downloadLink.href = imageUrl;
+            downloadLink.download = `swapped-${Date.now()}.png`;
+            downloadLink.className = 'download-btn';
+            downloadLink.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg><span>Download</span>`;
+            
+            wrapper.appendChild(img);
+            wrapper.appendChild(downloadLink);
+            outputContainer.appendChild(wrapper);
+            outputContainer.scrollTop = outputContainer.scrollHeight;
+        }
+        
+        function appendErrorToGallery(message) {
+            const errorEl = document.createElement('div');
+            errorEl.className = 'error-message';
+            errorEl.textContent = message;
+            outputContainer.appendChild(errorEl);
+            outputContainer.scrollTop = outputContainer.scrollHeight;
+        }
+    </script>
+</body>
+</html>
