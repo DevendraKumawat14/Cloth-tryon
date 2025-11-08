@@ -653,7 +653,7 @@
     <div class="app-container">
         <!-- LEFT PANEL -->
         <div class="left-panel">
-            <h1 class="app-title">Mannequin Swap</h1>
+            <h1 class="app-title">Fashion Try-On Studio</h1>
             <p class="app-subtitle">AI-powered virtual garment visualization</p>
 
             <!-- Section 1: Model Selection -->
@@ -810,9 +810,10 @@
 
     <!-- JSZip Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="config.js"></script>
-    <script>
-        const API_KEY = GEMINI_API_KEY; // Add your API key here
+  <script src="config.js"></script>
+<script>
+  const API_KEY = GEMINI_API_KEY ; // ✅ get the key from config.js
+ // Add your API key here
         
         let allGeneratedImages = []; // Store all generated images for bulk download
 
@@ -896,7 +897,7 @@
             // Load model images from folder
             for (let i = 1; i <= 10; i++) {
                 folderModelImages.push({
-                    src: `model${i}.png`,
+                    src: `src/images/model${i}.png`,
                     type: 'folder'
                 });
             }
@@ -904,7 +905,7 @@
             // Load background images from folder
             for (let i = 1; i <= 10; i++) {
                 folderBgImages.push({
-                    src: `bg${i}.png`,
+                    src: `src/images/bg${i}.png`,
                     type: 'folder'
                 });
             }
@@ -1362,6 +1363,9 @@
             loadingText.textContent = `Generating ${index + 1} of ${total}: ${pose.name}`;
             loadingSubtext.textContent = 'This may take 30-60 seconds...';
 
+            console.log('🚀 Starting image generation for pose:', pose.name);
+            console.log('API Key exists:', API_KEY ? 'Yes (length: ' + API_KEY.length + ')' : 'No');
+
             const shotInstruction = getShotInstructions(index, total);
 
             let accessoryInstructions = '';
@@ -1373,49 +1377,46 @@
             }
 
             const prompt = `
-PROFESSIONAL FASHION PHOTOGRAPHY — VIRTUAL TRY-ON
+PROFESSIONAL FASHION PHOTOGRAPHY - VIRTUAL TRY-ON
 
 INPUT REFERENCES:
-- MODEL: Preserve the exact face, hairstyle, body proportions, and skin tone. Model height and proportions must remain identical across all generated images.
-- GARMENT IMAGES: Use ONLY the clothing from the references — ignore mannequins, stands, hangers, shadows, or any background objects completely.
-- BACKGROUND: Use the provided scene as-is with matching lighting, perspective, and depth for seamless realism.
-${accessoryInstructions}
+- MODEL: Preserve exact face, hairstyle, body proportions, and skin tone.
+- GARMENT IMAGES: Match design, color, and texture from all provided references.
+- BACKGROUND: Use provided scene with matching lighting and depth.
 
 OBJECTIVE:
-Generate a single photorealistic fashion image where the garments appear naturally worn by the model in the background — as if photographed professionally in a real studio or on-location shoot.
+Generate a single photorealistic fashion image where garments appear naturally worn by the model.
 
 CRITICAL GARMENT REQUIREMENTS:
-✓ EXACT garment replication — same color, pattern, embroidery, and stitching.  
-✓ Exclude all mannequin or stand elements completely.  
-✓ Maintain proper garment layering, natural fit, and fabric drape physics.  
-✓ No alterations or reinterpretation of the outfit design.  
+✓ EXACT garment replication - same design, pattern, stitching.
+✓ Do NOT modify or reinterpret the outfit.
+✓ Maintain identical garment across all shots.
+✓ Preserve aspect ratio and prevent stretching.
+${accessoryInstructions}
 
 MODEL CONSISTENCY:
-✓ Preserve identical face, hairstyle, proportions, and natural expression.  
-✓ Keep height and body scale consistent across all images.  
-✓ Maintain realistic lighting direction, tone, and color temperature matching the background.  
+✓ Same face, expression, hairstyle, and proportions.
+✓ Identical lighting direction and color temperature.
 
-${cameraInstruction}
+CAMERA & FRAMING:
+${shotInstruction}
 
 POSE EXECUTION:
-"${pose.name}: ${pose.desc}"  
-Natural, confident, and editorial-style posture — not stiff or mannequin-like.  
+"${pose.name}: ${pose.desc}"
+Natural, confident, editorial-style posture.
 
 BACKGROUND INTEGRATION:
-✓ Perfectly match lighting between model and environment.  
-✓ Ensure natural shadow placement and accurate floor contact.  
-✓ Maintain realistic spatial depth and subtle background blur for cinematic realism.  
+✓ Lighting consistency with model.
+✓ Realistic shadows and floor contact.
+✓ Correct perspective.
 
 PHOTOGRAPHY STYLE:
-✓ Editorial / magazine-grade fashion aesthetic.  
-✓ Sharp focus on garment details and accessories.  
-✓ Cinematic lighting with professional color grading and depth.  
-✓ Balanced contrast, clean tones, and well-framed composition.  
+✓ Editorial fashion look (magazine-grade).
+✓ Sharp focus on garments.
+✓ Cinematic lighting with depth.
 
-Generate ONE cohesive, mannequin-free, photorealistic image — perfectly integrated, proportionally accurate, and styled as if shot by a high-end fashion photographer.
+Generate ONE cohesive, photorealistic image.
 `;
-
-
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${API_KEY}`;
 
@@ -1437,16 +1438,22 @@ Generate ONE cohesive, mannequin-free, photorealistic image — perfectly integr
                 }
             };
 
+            console.log('📤 Sending request to API...');
+            
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody)
             });
 
+            console.log('📥 Response status:', response.status, response.statusText);
+            
             const data = await response.json();
+            console.log('📦 Response data:', data);
 
             if (data.candidates && data.candidates[0].content.parts[0].inlineData) {
                 const imageData = data.candidates[0].content.parts[0].inlineData.data;
+                console.log('✅ Image generated successfully');
                 return {
                     success: true,
                     imageData: 'data:image/jpeg;base64,' + imageData,
@@ -1454,7 +1461,11 @@ Generate ONE cohesive, mannequin-free, photorealistic image — perfectly integr
                     shotType: 'Full Body'
                 };
             } else {
-                throw new Error('No image generated in response');
+                console.error('❌ No image in response. Full response:', data);
+                if (data.error) {
+                    throw new Error(`API Error: ${data.error.message || JSON.stringify(data.error)}`);
+                }
+                throw new Error('No image generated in response. Check console for details.');
             }
         }
 
@@ -1479,9 +1490,11 @@ Generate ONE cohesive, mannequin-free, photorealistic image — perfectly integr
 
                 for (let i = 0; i < selectedPoses.length; i++) {
                     try {
+                        console.log(`\n=== Generating image ${i + 1}/${selectedPoses.length} ===`);
                         const result = await generateSingleImage(finalComposite, selectedPoses[i], i, selectedPoses.length);
 
                         if (result.success) {
+                            console.log(`✅ Image ${i + 1} generated successfully`);
                             // Store for bulk download
                             allGeneratedImages.push({
                                 data: result.imageData,
@@ -1507,7 +1520,11 @@ Generate ONE cohesive, mannequin-free, photorealistic image — perfectly integr
                             successCount++;
                         }
                     } catch (error) {
-                        console.error(`Error generating pose ${selectedPoses[i]}:`, error);
+                        console.error(`❌ Error generating pose ${selectedPoses[i]}:`, error);
+                        console.error('Error details:', error.message);
+                        console.error('Stack trace:', error.stack);
+                        // Show user-friendly error
+                        alert(`Failed to generate image ${i + 1}: ${error.message}`);
                     }
                 }
 
@@ -1658,33 +1675,28 @@ Generate ONE cohesive, mannequin-free, photorealistic image — perfectly integr
 
         async function generateCloseupFromImage(imageData, focus, index) {
             const focusInstruction = focus === 'top' 
-    ? 'Crop or zoom into the upper body — include only the head, neck, shoulders, and torso (down to the waist). Maintain exact proportions and framing realism.'
-    : 'Crop or zoom into the lower body — include hips to knees clearly (ideal for showcasing skirts, shorts, or lower garment fit). Maintain natural proportions and framing realism.';
+                ? 'Zoom in and crop the image to show only the upper body from chest/shoulders to waist.'
+                : 'Zoom in and crop the image to show only the lower body from waist to knees.';
 
-const prompt = `
-PROFESSIONAL FASHION PHOTOGRAPHY — CLOSE-UP FRAME GENERATION
+            const prompt = `
+SIMPLE IMAGE CROP TASK
 
-INPUT: A full-body professional fashion image of the model wearing the outfit.
+INPUT: A full-body fashion photograph
 
-OBJECTIVE:
-Generate a close-up version of the SAME image, preserving every original detail while framing only the specified body region.
+TASK: Crop this exact image to create a closeup view.
 
-CROPPING INSTRUCTIONS:
+INSTRUCTIONS:
 ${focusInstruction}
 
 CRITICAL REQUIREMENTS:
-✓ Use the EXACT same image — same model, face, pose, outfit, lighting, and background.
-✓ Do NOT regenerate or modify — only create a zoomed-in crop version of the original.
-✓ Maintain identical colors, shadows, and image quality.
-✓ Preserve realism — depth of field, sharpness, and lighting direction must remain unchanged.
-✓ ${focus === 'top' 
-    ? 'Visible area: Head to torso (shoulders/chest to waist).' 
-    : 'Visible area: Hips to knees (clear view of garment fit and fabric).'
-}
-✓ No new expressions, poses, or body proportions — perfect match with the source.
+✓ Use the EXACT same image - no changes, no modifications
+✓ Same model, same pose, same garments, same everything
+✓ Only crop/zoom the framing - nothing else
+✓ ${focus === 'top' ? 'Show from shoulders/chest to waist area' : 'Show from waist to knees area'}
+✓ Maintain all original image quality and details
+✓ No regeneration - just crop the provided image
 
-FINAL OUTPUT:
-A realistic close-up frame of the original full-body shot — proportionally accurate, naturally zoomed, and visually consistent with high-end fashion photography standards.
+This is a simple crop operation of the existing image.
 `;
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${API_KEY}`;
