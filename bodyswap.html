@@ -376,7 +376,7 @@
         // --- 10. (Updated) Call Gemini API with Exponential Backoff ---
         async function callGeminiApi(originalBase64, retryCount = 0) {
             const apiKey = GEMINI_API_KEY ; // Leave blank for now, should be server-side for production
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${apiKey}`; // Note: Updated model name
+            const apiUrl = "/api/generate"; // your serverless backend route
             
             let systemPrompt = `You are an expert e-commerce photo editor. You will be given a 'SOURCE' image (containing the clothes and pose) and instructions for the desired model.
             
@@ -436,38 +436,37 @@
             };
 
             try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
 
-                if (!response.ok) {
-                    if ((response.status === 429 || response.status >= 500) && retryCount < 3) {
-                        const delay = Math.pow(2, retryCount) * 1000 + Math.random() * 1000;
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        return callGeminiApi(originalBase64, retryCount + 1); // Retry
-                    }
-                    const errorData = await response.json();
-                    throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
+            if (!response.ok) {
+                if ((response.status === 429 || response.status >= 500) && retryCount < 3) {
+                const delay = Math.pow(2, retryCount) * 1000 + Math.random() * 1000;
+                await new Promise(resolve => setTimeout(resolve, delay));
+                return callGeminiApi(originalBase64, retryCount + 1);
                 }
 
-                const result = await response.json();
-                
-                // Updated path for Gemini 1.5 Flash
-                const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
+            }
 
-                if (base64Data) {
-                    return base64Data; // Return the data for the gallery
-                } else {
-                    const errorText = result?.candidates?.[0]?.finishReason || "No image generated. The prompt might have been blocked.";
-                    console.error("API Error:", result); // Log the full result
-                    return null; // Return null on failure
-                }
+            const result = await response.json();
+            const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+
+            if (base64Data) {
+                return base64Data;
+            } else {
+                const errorText = result?.candidates?.[0]?.finishReason || "No image generated. The prompt might have been blocked.";
+                console.error("API Error:", result);
+                return null;
+            }
 
             } catch (error) {
-                console.error("API Call Error:", error);
-                return null; // Return null on failure
+                console.error("🔥 API Call Error:", error);
+                return null;
             }
         }
         

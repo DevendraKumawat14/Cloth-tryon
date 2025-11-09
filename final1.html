@@ -812,7 +812,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="config.js"></script>
 <script>
-  const API_KEY = GEMINI_API_KEY ; // ✅ get the key from config.js
+  const API_KEY = GEMINI_API_KEY; // ✅ get the key from config.js
  // Add your API key here
         
         let allGeneratedImages = []; // Store all generated images for bulk download
@@ -845,21 +845,21 @@
             { id: 22, name: "The Over Shoulder Look", desc: "Body turned away, head glancing back softly. (semi-back pose)" },
             { id: 23, name: "The Full Back Turn", desc: "Back facing camera, subtle twist showing profile, calm expression. (back pose)" },
             { id: 24, name: "The Side Glance", desc: "Body angled at 45°, soft gaze toward camera, natural calm energy." },
-            { id: 25, name: "The Head Tilt", desc: "Head tilted slightly, relaxed lips, gentle expression." },
+            { id: 25, name: "The Head Tilt", desc: "A relaxed, neutral standing pose with the body facing the camera. The head is tilted slightly to one side." },
             { id: 26, name: "The Seated Elegance", desc: "Sitting upright, legs crossed at ankles, serene poised look." },
             { id: 27, name: "The Back Arch", desc: "Body turned sideways, slight back arch, face tilted upward. (semi-back pose)" },
-            { id: 28, name: "The Chin Down Look", desc: "Eyes looking down softly, peaceful serene face." },
+            { id: 28, name: "The Chin Down Look", desc: "Standing with a soft, neutral posture, arms relaxed at sides, chin tilted down softly with a peaceful, serene face." },
             { id: 29, name: "The Closed-Eye Calm", desc: "Eyes closed, soft facial relaxation, natural peace." },
             { id: 30, name: "The Laughing Turn", desc: "Mid-laugh turning slightly sideways, candid joy. (semi-back pose)" },
             { id: 31, name: "The Shoulder Drop", desc: "One shoulder slightly lower, neck elongated, graceful stance." },
             { id: 32, name: "The Arm Wrap", desc: "Arms wrapped gently around torso, soft and secure energy." },
             { id: 33, name: "The Sitting Twist", desc: "Seated sideways, torso turned back toward camera. (semi-back pose)" },
-            { id: 34, name: "The Over-the-Head Gaze", desc: "Head tilted slightly upward, soft lifted eyes, elegant expression." },
+            { id: 34, name: "The Over-the-Head Gaze", desc: "Standing tall with good posture, body facing 45 degrees from camera. The head is tilted slightly upward with a soft, elegant gaze." },
             { id: 35, name: "The Soft Profile", desc: "Side profile, lips relaxed, calm gentle aura." },
             { id: 36, name: "The Back Lean", desc: "Leaning slightly backward, neck relaxed, closed eyes. (back pose)" },
             { id: 37, name: "The Floor Sit", desc: "Sitting on floor, knees bent sideways, gentle thoughtful expression." },
-            { id: 38, name: "The Half Smile", desc: "Natural relaxed half-smile, warm and calm energy." },
-            { id: 39, name: "The Neutral Beauty", desc: "Expressionless, stillness-focused face, calm posture." },
+            { id: 38, name: "The Half Smile", desc: "Standing tall and confident, body angled 45 degrees to camera, looking at camera with a natural relaxed half-smile." },
+            { id: 39, name: "The Neutral Beauty", desc: "A still, standing museum pose with arms relaxed at the sides. Body is straight and facing the camera, with a neutral and expressionless face." },
             { id: 40, name: "The Walk Away", desc: "Walking away from camera, slight turn of head back. (back pose)" }
         ];
 
@@ -897,7 +897,7 @@
             // Load model images from folder
             for (let i = 1; i <= 10; i++) {
                 folderModelImages.push({
-                    src: `src/images/model${i}.png`,
+                    src: `src/image/model${i}.png`,
                     type: 'folder'
                 });
             }
@@ -905,7 +905,7 @@
             // Load background images from folder
             for (let i = 1; i <= 10; i++) {
                 folderBgImages.push({
-                    src: `src/images/bg${i}.png`,
+                    src: `src/image/bg${i}.png`,
                     type: 'folder'
                 });
             }
@@ -1377,95 +1377,109 @@
             }
 
             const prompt = `
-PROFESSIONAL FASHION PHOTOGRAPHY - VIRTUAL TRY-ON
+## 1. CORE OBJECTIVE & ROLE
+You are an expert AI Art Director for a professional fashion photoshoot. Your task is to perform a **virtual try-on**, creating ONE photorealistic image.
 
-INPUT REFERENCES:
-- MODEL: Preserve exact face, hairstyle, body proportions, and skin tone.
-- GARMENT IMAGES: Match design, color, and texture from all provided references.
-- BACKGROUND: Use provided scene with matching lighting and depth.
+## 2. INPUT REFERENCES
+* **MODEL IMAGE:** This is the reference for the model's **identity**.
+* **GARMENT IMAGES (Front/Back):** This is the reference for the **clothing**.
+* **BACKGROUND IMAGE:** This is the reference for the **scene**.
 
-OBJECTIVE:
-Generate a single photorealistic fashion image where garments appear naturally worn by the model.
+## 3. EXECUTION PRIORITY (CRITICAL RULES)
+Follow these rules in order of importance:
 
-CRITICAL GARMENT REQUIREMENTS:
-✓ EXACT garment replication - same design, pattern, stitching.
-✓ Do NOT modify or reinterpret the outfit.
-✓ Maintain identical garment across all shots.
-✓ Preserve aspect ratio and prevent stretching.
-${accessoryInstructions}
+**PRIORITY #1: MODEL IDENTITY**
+* You **MUST** preserve the model's exact **face**, **facial features**, **skin tone**, and **hairstyle** from the MODEL IMAGE.
+* The identity must be unmistakable. Do NOT generate a "similar-looking" person.
 
-MODEL CONSISTENCY:
-✓ Same face, expression, hairstyle, and proportions.
-✓ Identical lighting direction and color temperature.
+**PRIORITY #2: GARMENT ACCURACY**
+* You **MUST** replicate the *exact* garment (the clothing) from the GARMENT IMAGES.
+* **CRITICAL NEGATIVE INSTRUCTION:** The garment images may show the clothing on a mannequin, dummy, or stand. You **MUST IGNORE** the mannequin, stand, or any display prop.
+* Your task is to extract **ONLY** the garment's **design, pattern, color, and texture**, and apply it to the human model.
+* Do NOT replicate the mannequin's body or stand in the final image.
+* Do NOT modify, reinterpret, or "get creative" with the outfit.
+* The garment must appear consistently applied. ${accessoryInstructions}
 
-CAMERA & FRAMING:
-${shotInstruction}
+**PRIORITY #3: POSE & INTEGRATION**
+* Place the model in the following pose: "${pose.name}: ${pose.desc}"
+* The garment must **drape naturally** on the model's body according to this pose.
+* The pose must look confident, natural, and editorial.
 
-POSE EXECUTION:
-"${pose.name}: ${pose.desc}"
-Natural, confident, editorial-style posture.
+**PRIORITY #4: SCENE & LIGHTING INTEGRATION**
+* Place the composed model into the BACKGROUND IMAGE.
+* The **lighting on the model** (direction, color, temperature) MUST perfectly **match the lighting** of the BACKGROUND IMAGE.
+* Generate **realistic shadows** where the model interacts with the background (e.g., feet on the floor).
 
-BACKGROUND INTEGRATION:
-✓ Lighting consistency with model.
-✓ Realistic shadows and floor contact.
-✓ Correct perspective.
+## 4. FINAL IMAGE STYLE
+* **Camera:** ${shotInstruction}
+* **Overall Look:** Professional, editorial fashion photography (magazine-grade).
+* **Quality:** Photorealistic, sharp focus, and high-end.
 
-PHOTOGRAPHY STYLE:
-✓ Editorial fashion look (magazine-grade).
-✓ Sharp focus on garments.
-✓ Cinematic lighting with depth.
-
-Generate ONE cohesive, photorealistic image.
+Generate ONE single, cohesive image.
 `;
-
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${API_KEY}`;
+            // ✅ NEW
+            // ✅ Corrected version (fully compatible with your /api/generate backend)
+            const apiUrl = "/api/generate"; // ✅ your Vercel backend route
 
             const parts = [
-                { text: prompt },
-                { inline_data: { mime_type: "image/jpeg", data: base64ToImage(uploadedImages.model) } },
-                { inline_data: { mime_type: "image/jpeg", data: base64ToImage(compositeCloth) } },
-                { inline_data: { mime_type: "image/jpeg", data: base64ToImage(uploadedImages.background) } }
+            { text: prompt },
+            { inline_data: { mime_type: "image/jpeg", data: base64ToImage(uploadedImages.model) } },
+            { inline_data: { mime_type: "image/jpeg", data: base64ToImage(compositeCloth) } },
+            { inline_data: { mime_type: "image/jpeg", data: base64ToImage(uploadedImages.background) } }
             ];
 
             const requestBody = {
-                contents: [{ parts }],
-                generationConfig: {
-                    temperature: 0.4,
-                    topK: 32,
-                    topP: 1,
-                    maxOutputTokens: 4096,
-                    responseModalities: ["IMAGE"]
-                }
+            contents: [{ parts }],
+            generationConfig: {
+                temperature: 0.4,
+                topK: 32,
+                topP: 1,
+                maxOutputTokens: 4096,
+                responseModalities: ["IMAGE"]
+            }
             };
 
             console.log('📤 Sending request to API...');
-            
+
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 60000);
+
             const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestBody)
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody),
+            signal: controller.signal
             });
+            clearTimeout(timeout);
+
+            // ✅ handle HTTP errors safely
+            if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`❌ HTTP error ${response.status}: ${errorText}`);
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
 
             console.log('📥 Response status:', response.status, response.statusText);
-            
+
             const data = await response.json();
             console.log('📦 Response data:', data);
 
+            // ✅ Handle the API response
             if (data.candidates && data.candidates[0].content.parts[0].inlineData) {
-                const imageData = data.candidates[0].content.parts[0].inlineData.data;
-                console.log('✅ Image generated successfully');
-                return {
-                    success: true,
-                    imageData: 'data:image/jpeg;base64,' + imageData,
-                    poseName: pose.name,
-                    shotType: 'Full Body'
-                };
+            const imageData = data.candidates[0].content.parts[0].inlineData.data;
+            console.log('✅ Image generated successfully');
+            return {
+                success: true,
+                imageData: 'data:image/jpeg;base64,' + imageData,
+                poseName: pose?.name || "Unknown Pose",
+                shotType: 'Full Body'
+            };
             } else {
-                console.error('❌ No image in response. Full response:', data);
-                if (data.error) {
-                    throw new Error(`API Error: ${data.error.message || JSON.stringify(data.error)}`);
-                }
-                throw new Error('No image generated in response. Check console for details.');
+            console.error('❌ No image in response. Full response:', data);
+            if (data.error) {
+                throw new Error(`API Error: ${data.error.message || JSON.stringify(data.error)}`);
+            }
+            throw new Error('No image generated in response. Check console for details.');
             }
         }
 
@@ -1674,32 +1688,49 @@ Generate ONE cohesive, photorealistic image.
         }
 
         async function generateCloseupFromImage(imageData, focus, index) {
-            const focusInstruction = focus === 'top' 
-                ? 'Zoom in and crop the image to show only the upper body from chest/shoulders to waist.'
-                : 'Zoom in and crop the image to show only the lower body from waist to knees.';
+            // PUT THIS LOGIC IN YOUR CODE BEFORE THE PROMPT
+// This creates the "really, really close" e-commerce shot you want.
 
-            const prompt = `
-SIMPLE IMAGE CROP TASK
+let focusInstruction;
 
-INPUT: A full-body fashion photograph
+if (focus === 'top') {
+    focusInstruction = `
+    **FOCUS: TOP GARMENT DETAIL**
+    * **FRAME:** Generate an extreme closeup of the **top garment**.
+    * **AREA:** The shot must be tightly framed from the **neckline down to the mid-torso/bust**.
+    * **GOAL:** The primary goal is to show the fabric's **texture, pattern, and fine details** (like stitching or buttons), as seen on an e-commerce product page.
+    `;
+} else { // Assuming 'bottom'
+    focusInstruction = `
+    **FOCUS: BOTTOM GARMENT DETAIL**
+    * **FRAME:** Generate an extreme closeup of the **bottom garment**.
+    * **AREA:** The shot must be tightly framed from the **waist/hips down to the mid-thigh**.
+    * **GOAL:** The primary goal is to show the fabric's **texture, pattern, and fine details** (like seams or pockets), as seen on an e-commerce product page.
+    `;
+}
 
-TASK: Crop this exact image to create a closeup view.
+            // THIS IS YOUR NEW PROMPT
+const prompt = `
+## ROLE: AI CROP TOOL
+You are a simple image-cropping utility. You are not an artist.
 
-INSTRUCTIONS:
+## TASK: TECHNICAL CROP
+You will be given one full-body fashion photograph. Your ONLY job is to crop this image to a new, "zoomed-in" frame.
+
+## CRITICAL RULES (NON-NEGOTIABLE):
+1.  **NO REGENERATION:** You MUST NOT alter, change, or regenerate a single pixel. The output must be a literal crop of the input image.
+2.  **100% PIXEL IDENTITY:** The model, pose, garments, lighting, and textures in the cropped area must be **identical** to the original image.
+3.  **NO CREATIVITY:** Do not "interpret" the request. This is a technical operation.
+
+## CROP INSTRUCTIONS:
 ${focusInstruction}
 
-CRITICAL REQUIREMENTS:
-✓ Use the EXACT same image - no changes, no modifications
-✓ Same model, same pose, same garments, same everything
-✓ Only crop/zoom the framing - nothing else
-✓ ${focus === 'top' ? 'Show from shoulders/chest to waist area' : 'Show from waist to knees area'}
-✓ Maintain all original image quality and details
-✓ No regeneration - just crop the provided image
-
-This is a simple crop operation of the existing image.
+Execute this simple crop operation.
 `;
 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${API_KEY}`;
+            // ✅ NEW
+            const apiUrl = "/api/generate"; // call your own backend
+
 
             const parts = [
                 { text: prompt },
