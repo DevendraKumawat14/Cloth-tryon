@@ -375,7 +375,6 @@
 
         // --- 10. (Updated) Call Gemini API with Exponential Backoff ---
         async function callGeminiApi(originalBase64, retryCount = 0) {
-            const apiKey = GEMINI_API_KEY ; // Leave blank for now, should be server-side for production
             const apiUrl = "/api/generate"; // your serverless backend route
             
             let systemPrompt = `You are an expert e-commerce photo editor. You will be given a 'SOURCE' image (containing the clothes and pose) and instructions for the desired model.
