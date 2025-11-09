@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/final1_updated.html"
+      "destination": "/final1.html"
     },
     {
       "source": "/bodyswap",
