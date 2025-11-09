@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/final1_updated.html"
+    },
+    {
+      "source": "/bodyswap",
+      "destination": "/bodyswap.html"
+    }
+  ]
+}
