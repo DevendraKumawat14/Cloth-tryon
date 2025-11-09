@@ -810,7 +810,7 @@
 
     <!-- JSZip Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  
+  <script src="config.js"></script>
 <script>
  // Add your API key here
         
@@ -896,7 +896,7 @@
             // Load model images from folder
             for (let i = 1; i <= 10; i++) {
                 folderModelImages.push({
-                    src: `src/images/model${i}.png`,
+                    src: `src/model${i}.png`,
                     type: 'folder'
                 });
             }
@@ -904,7 +904,7 @@
             // Load background images from folder
             for (let i = 1; i <= 10; i++) {
                 folderBgImages.push({
-                    src: `src/images/bg${i}.png`,
+                    src: `src/bg${i}.png`,
                     type: 'folder'
                 });
             }
@@ -1363,7 +1363,6 @@
             loadingSubtext.textContent = 'This may take 30-60 seconds...';
 
             console.log('🚀 Starting image generation for pose:', pose.name);
-            console.log('API Key exists:', API_KEY ? 'Yes (length: ' + API_KEY.length + ')' : 'No');
 
             const shotInstruction = getShotInstructions(index, total);
 
