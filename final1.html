@@ -896,7 +896,7 @@
             // Load model images from folder
             for (let i = 1; i <= 10; i++) {
                 folderModelImages.push({
-                    src: `src/images/model${i}.png`,
+                    src: `src/model${i}.png`,
                     type: 'folder'
                 });
             }
@@ -904,7 +904,7 @@
             // Load background images from folder
             for (let i = 1; i <= 10; i++) {
                 folderBgImages.push({
-                    src: `src/images/bg${i}.png`,
+                    src: `src/bg${i}.png`,
                     type: 'folder'
                 });
             }
@@ -1824,6 +1824,89 @@ Execute this simple crop operation.
 
         // Initialize app
         init();
-    </script>
+    
+    // Image compression function to keep payload under 4.3MB
+    async function compressImage(base64String, maxSizeKB = 4300) {
+      try {
+        // Remove data:image/jpeg;base64, prefix if present
+        const base64Data = base64String.replace(/^data:image\/\w+;base64,/, '');
+
+        // Calculate current size in KB
+        const currentSizeKB = (base64Data.length * 3) / 4 / 1024;
+        console.log(`📊 Original image size: ${currentSizeKB.toFixed(2)} KB`);
+
+        // If already under limit, return as is
+        if (currentSizeKB <= maxSizeKB) {
+          console.log('✅ Image already under size limit');
+          return base64String;
+        }
+
+        // Create an image element
+        const img = new Image();
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = base64String.startsWith('data:') ? base64String : `data:image/jpeg;base64,${base64String}`;
+        });
+
+        // Calculate compression ratio needed
+        const ratio = maxSizeKB / currentSizeKB;
+        const targetQuality = Math.max(0.3, Math.min(0.9, ratio * 0.9)); // Between 0.3 and 0.9
+
+        // Try different quality levels until we get under the limit
+        let quality = targetQuality;
+        let compressedBase64 = '';
+        let attempts = 0;
+        const maxAttempts = 5;
+
+        while (attempts < maxAttempts) {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+
+          // Optionally resize if needed
+          let width = img.width;
+          let height = img.height;
+
+          // If still too large, reduce dimensions
+          if (quality < 0.4) {
+            const scale = Math.sqrt(ratio);
+            width = Math.floor(img.width * scale);
+            height = Math.floor(img.height * scale);
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Compress to JPEG with quality setting
+          compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+
+          // Check size
+          const compressedData = compressedBase64.replace(/^data:image\/\w+;base64,/, '');
+          const compressedSizeKB = (compressedData.length * 3) / 4 / 1024;
+
+          console.log(`🔄 Attempt ${attempts + 1}: Quality ${quality.toFixed(2)}, Size: ${compressedSizeKB.toFixed(2)} KB`);
+
+          if (compressedSizeKB <= maxSizeKB) {
+            console.log(`✅ Compressed successfully from ${currentSizeKB.toFixed(2)} KB to ${compressedSizeKB.toFixed(2)} KB`);
+            return compressedData;
+          }
+
+          // Reduce quality for next attempt
+          quality *= 0.85;
+          attempts++;
+        }
+
+        console.warn('⚠️ Could not compress below limit, returning best attempt');
+        return compressedBase64.replace(/^data:image\/\w+;base64,/, '');
+
+      } catch (error) {
+        console.error('❌ Compression error:', error);
+        // Return original if compression fails
+        return base64String.replace(/^data:image\/\w+;base64,/, '');
+      }
+    }
+
+</script>
 </body>
 </html>
