@@ -1467,7 +1467,8 @@ Follow these rules in order of importance:
 
 Generate ONE single, cohesive image.
 `;
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${API_KEY}`;
+            const apiUrl = "/generate";
+
 
             const parts = [
                 { text: prompt },
@@ -1763,7 +1764,7 @@ ${focusInstruction}
 Execute this simple crop operation.
 `;
 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${API_KEY}`;
+            const apiUrl = "/generate";
 
             const parts = [
                 { text: prompt },
