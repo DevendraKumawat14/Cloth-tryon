@@ -44,9 +44,14 @@
     <main class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
       <div class="flex flex-col space-y-6">
         <div>
-          <label for="imageUpload" class="block text-xl font-semibold mb-3 text-white">1. Upload Original Photos (Multiple)</label>
-          <input type="file" id="imageUpload" accept="image/png, image/jpeg" class="w-full text-sm text-gray-300 file:mr-4 file:border-0 file:outline-none focus:outline-none" multiple>
-          <div id="originalImagePreviewArea" class="mt-4 w-full h-40 bg-gray-700 rounded-lg flex flex-col p-4 border-2 border-dashed border-gray-600 overflow-y-auto">
+          <label for="imageUpload" class="block text-xl font-semibold mb-3 text-white">
+            1. Upload Original Photos (Multiple)
+          </label>
+          <input type="file" id="imageUpload" accept="image/png, image/jpeg"
+            class="w-full text-sm text-gray-300 file:mr-4 file:border-0 file:outline-none focus:outline-none"
+            multiple>
+          <div id="originalImagePreviewArea"
+            class="mt-4 w-full h-40 bg-gray-700 rounded-lg flex flex-col p-4 border-2 border-dashed border-gray-600 overflow-y-auto">
             <span id="originalPreviewPlaceholder" class="text-gray-400 m-auto">File list will appear here</span>
           </div>
         </div>
@@ -54,29 +59,40 @@
         <div>
           <label class="block text-xl font-semibold mb-3 text-white">2. Define New Model</label>
           <label for="modelPresetSelect" class="block text-lg font-medium mb-2 text-gray-300">Select a Preset Model (Optional)</label>
-          <select id="modelPresetSelect" class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-600 mb-2">
+          <select id="modelPresetSelect"
+            class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-600 mb-2">
             <option value="">-- Select a preset --</option>
           </select>
           <div class="w-full flex justify-center mb-4">
-            <img id="modelPresetPreview" src="" alt="Model preview" class="hidden w-24 h-24 object-cover rounded-lg bg-gray-700 border border-gray-600">
+            <img id="modelPresetPreview" src="" alt="Model preview"
+              class="hidden w-24 h-24 object-cover rounded-lg bg-gray-700 border border-gray-600">
           </div>
           <label for="modelDescription" class="block text-lg font-medium mb-2 text-gray-300">Describe the Desired Model</label>
-          <textarea id="modelDescription" rows="4" class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="e.g., 'A professional-looking woman with long brown hair, smiling brightly'."></textarea>
+          <textarea id="modelDescription" rows="4"
+            class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            placeholder="e.g., 'A professional-looking woman with long brown hair, smiling brightly'."></textarea>
         </div>
 
         <div>
-          <label for="backgroundImageUpload" class="block text-xl font-semibold mb-3 text-white">3. (Optional) Change Background</label>
-          <input type="file" id="backgroundImageUpload" accept="image/png, image/jpeg" class="w-full text-sm text-gray-300 file:mr-4 file:border-0 file:outline-none focus:outline-none">
+          <label for="backgroundImageUpload" class="block text-xl font-semibold mb-3 text-white">
+            3. (Optional) Change Background
+          </label>
+          <input type="file" id="backgroundImageUpload" accept="image/png, image/jpeg"
+            class="w-full text-sm text-gray-300 file:mr-4 file:border-0 file:outline-none focus:outline-none">
           <div class="mt-4 w-full h-40 bg-gray-700 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-600 overflow-hidden">
-            <img id="backgroundImagePreview" src="" alt="Background image preview" class="hidden h-full w-full object-contain">
+            <img id="backgroundImagePreview" src="" alt="Background image preview"
+              class="hidden h-full w-full object-contain">
             <span id="backgroundPreviewPlaceholder" class="text-gray-400">Background preview</span>
           </div>
         </div>
 
         <div>
-          <button id="generateBtn" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19 14.5" />
+          <button id="generateBtn"
+            class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19 14.5" />
             </svg>
             <span>Swap Models</span>
           </button>
@@ -85,7 +101,8 @@
 
       <div class="flex flex-col space-y-6">
         <label class="block text-xl font-semibold mb-3 text-white">4. Results Gallery</label>
-        <div id="outputContainer" class="w-full min-h-[28rem] bg-gray-700 rounded-lg flex flex-col p-4 border-2 border-gray-600 overflow-y-auto">
+        <div id="outputContainer"
+          class="w-full min-h-[28rem] bg-gray-700 rounded-lg flex flex-col p-4 border-2 border-gray-600 overflow-y-auto">
           <div id="loadingSpinner" class="spinner hidden mx-auto my-auto"></div>
           <span id="outputPlaceholder" class="text-gray-400 m-auto">Your new images will appear here</span>
         </div>
@@ -98,7 +115,8 @@
   </div>
 
   <script type="module">
-    // --- Preset Models ---
+    const apiUrl = "/generate"; // ✅ fixed backend path
+
     const modelPresets = [
       { name: "Rugged Man (Beard)", prompt: "A rugged Caucasian male with a short beard and green eyes, textured skin.", preview: "./images/m1.png" },
       { name: "Youthful Smiling Man", prompt: "A young male model with curly blonde hair and a friendly smile.", preview: "./images/m2.png" },
@@ -126,6 +144,7 @@
     let originalImageBase64List = [];
     let backgroundImageBase64 = null;
 
+    // Preset loading
     document.addEventListener('DOMContentLoaded', () => {
       modelPresets.forEach(preset => {
         const option = document.createElement('option');
@@ -136,15 +155,18 @@
       });
     });
 
+    // Image upload
     imageUpload.addEventListener('change', async e => {
       const files = e.target.files;
+      originalImageBase64List = [];
+      originalImagePreviewArea.innerHTML = '';
+
       if (!files.length) {
-        originalImagePreviewArea.innerHTML = '';
         originalImagePreviewArea.appendChild(originalPreviewPlaceholder);
         return;
       }
-      originalImagePreviewArea.innerHTML = '';
-      const filePromises = Array.from(files).map(file => new Promise((resolve, reject) => {
+
+      for (const file of files) {
         const reader = new FileReader();
         reader.onload = ev => {
           const base64 = ev.target.result.split(',')[1];
@@ -157,18 +179,14 @@
           name.textContent = file.name;
           name.className = 'text-sm text-gray-200 truncate';
           wrapper.append(img, name);
-          resolve({ base64, previewElement: wrapper });
+          originalImageBase64List.push(base64);
+          originalImagePreviewArea.append(wrapper);
         };
-        reader.onerror = reject;
         reader.readAsDataURL(file);
-      }));
-      const results = await Promise.all(filePromises);
-      results.forEach(r => {
-        originalImageBase64List.push(r.base64);
-        originalImagePreviewArea.append(r.previewElement);
-      });
+      }
     });
 
+    // Background upload
     backgroundImageUpload.addEventListener('change', e => {
       const file = e.target.files[0];
       if (!file) {
@@ -187,6 +205,7 @@
       reader.readAsDataURL(file);
     });
 
+    // Model preset logic
     modelPresetSelect.addEventListener('change', e => {
       const opt = e.target.options[e.target.selectedIndex];
       modelDescription.value = opt.value;
@@ -207,9 +226,9 @@
       setTimeout(() => messageBox.classList.remove('show'), 3000);
     }
 
+    // Core API call
     async function callGeminiApi(originalBase64, retry = 0) {
-      const apiUrl = "/api/generate";
-      let systemPrompt = `You are an expert e-commerce photo editor. Keep pose and clothing identical to the SOURCE image.`;
+      const systemPrompt = `You are an expert e-commerce photo editor. Keep pose and clothing identical to the SOURCE image.`;
 
       const parts = [{ text: systemPrompt }];
       parts.push({ text: "SOURCE image:" }, { inlineData: { mimeType: "image/jpeg", data: originalBase64 } });
@@ -226,6 +245,7 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ contents: [{ parts }] })
         });
+
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const result = await res.json();
         const data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
@@ -240,6 +260,7 @@
       }
     }
 
+    // Generate logic
     generateBtn.addEventListener('click', async () => {
       if (!originalImageBase64List.length) return showMessage("Upload at least one image.");
       if (!modelDescription.value.trim()) return showMessage("Describe the model or select a preset.");
@@ -262,8 +283,10 @@
       const url = `data:image/png;base64,${b64}`;
       const div = document.createElement('div');
       div.className = 'relative p-2 bg-gray-600 rounded-lg mb-4';
-      div.innerHTML = `<img src="${url}" class="w-full rounded-md">
-      <a href="${url}" download="result.png" class="absolute bottom-4 right-4 bg-green-600 text-white py-2 px-4 rounded-lg text-sm">Download</a>`;
+      div.innerHTML = `
+        <img src="${url}" class="w-full rounded-md">
+        <a href="${url}" download="result.png" 
+          class="absolute bottom-4 right-4 bg-green-600 text-white py-2 px-4 rounded-lg text-sm">Download</a>`;
       outputContainer.append(div);
     }
 
