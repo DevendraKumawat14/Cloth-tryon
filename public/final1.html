@@ -943,20 +943,22 @@
         // Load images from local folder (model1.png - model10.png, bg1.png - bg10.png)
         function loadFolderImages() {
             // Load model images from folder
-            for (let i = 1; i <= 10; i++) {
-                folderModelImages.push({
-                    src: `src/model${i}.png`,
-                    type: 'folder'
-                });
-            }
+            // Load model images from folder
+        for (let i = 1; i <= 10; i++) {
+        folderModelImages.push({
+            src: `./images/model${i}.png`,
+            type: 'folder'
+        });
+        }
 
-            // Load background images from folder
-            for (let i = 1; i <= 10; i++) {
-                folderBgImages.push({
-                    src: `src/bg${i}.png`,
-                    type: 'folder'
-                });
-            }
+        // Load background images from folder
+        for (let i = 1; i <= 10; i++) {
+        folderBgImages.push({
+            src: `./images/bg${i}.png`,
+            type: 'folder'
+        });
+        }
+
 
             loadModelGrid();
             loadBgGrid();
