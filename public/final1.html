@@ -729,30 +729,18 @@
                     Accessories
                 </div>
                 <p class="section-desc">Optional: Add jewellery or footwear</p>
-
                 <button class="upload-btn" onclick="document.getElementById('jewellery').click()">
                     + Upload Jewellery
                 </button>
-                <input type="file" id="jewellery" accept="image/*" style="display:none;" onchange="handleAccessoryUpload(event, 'jewellery')">
-                <div id="jewelleryPreview" class="preview-container" style="display:none; margin-top: 10px; text-align: center;">
-                    <img id="jewelleryPreviewImg" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #333;">
-                    <br>
-                    <button onclick="removeAccessory('jewellery')" style="margin-top: 8px; padding: 6px 12px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Remove Jewellery</button>
-                </div>
+                <input type="file" id="jewellery" accept="image/*" style="display:none;">
                 <input type="text" class="text-input" id="jewelleryPrompt" placeholder="Or describe jewellery...">
-
+                
                 <button class="upload-btn" onclick="document.getElementById('shoes').click()" style="margin-top: 12px;">
                     + Upload Footwear
                 </button>
-                <input type="file" id="shoes" accept="image/*" style="display:none;" onchange="handleAccessoryUpload(event, 'shoes')">
-                <div id="shoesPreview" class="preview-container" style="display:none; margin-top: 10px; text-align: center;">
-                    <img id="shoesPreviewImg" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #333;">
-                    <br>
-                    <button onclick="removeAccessory('shoes')" style="margin-top: 8px; padding: 6px 12px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Remove Footwear</button>
-                </div>
+                <input type="file" id="shoes" accept="image/*" style="display:none;">
                 <input type="text" class="text-input" id="shoesPrompt" placeholder="Or describe footwear...">
             </div>
-
 
             <!-- Section 5: Pose Selection -->
             <div class="section">
@@ -822,10 +810,9 @@
 
     <!-- JSZip Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="config.js"></script>
-<script>
-  const API_KEY = GEMINI_API_KEY; // ✅ get the key from config.js
- // Add your API key here
+
+    <script>
+         // Add your API key here
         
         let allGeneratedImages = []; // Store all generated images for bulk download
 
@@ -857,21 +844,21 @@
             { id: 22, name: "The Over Shoulder Look", desc: "Body turned away, head glancing back softly. (semi-back pose)" },
             { id: 23, name: "The Full Back Turn", desc: "Back facing camera, subtle twist showing profile, calm expression. (back pose)" },
             { id: 24, name: "The Side Glance", desc: "Body angled at 45°, soft gaze toward camera, natural calm energy." },
-            { id: 25, name: "The Head Tilt", desc: "A relaxed, neutral standing pose with the body facing the camera. The head is tilted slightly to one side." },
+            { id: 25, name: "The Head Tilt", desc: "Head tilted slightly, relaxed lips, gentle expression." },
             { id: 26, name: "The Seated Elegance", desc: "Sitting upright, legs crossed at ankles, serene poised look." },
             { id: 27, name: "The Back Arch", desc: "Body turned sideways, slight back arch, face tilted upward. (semi-back pose)" },
-            { id: 28, name: "The Chin Down Look", desc: "Standing with a soft, neutral posture, arms relaxed at sides, chin tilted down softly with a peaceful, serene face." },
+            { id: 28, name: "The Chin Down Look", desc: "Eyes looking down softly, peaceful serene face." },
             { id: 29, name: "The Closed-Eye Calm", desc: "Eyes closed, soft facial relaxation, natural peace." },
             { id: 30, name: "The Laughing Turn", desc: "Mid-laugh turning slightly sideways, candid joy. (semi-back pose)" },
             { id: 31, name: "The Shoulder Drop", desc: "One shoulder slightly lower, neck elongated, graceful stance." },
             { id: 32, name: "The Arm Wrap", desc: "Arms wrapped gently around torso, soft and secure energy." },
             { id: 33, name: "The Sitting Twist", desc: "Seated sideways, torso turned back toward camera. (semi-back pose)" },
-            { id: 34, name: "The Over-the-Head Gaze", desc: "Standing tall with good posture, body facing 45 degrees from camera. The head is tilted slightly upward with a soft, elegant gaze." },
+            { id: 34, name: "The Over-the-Head Gaze", desc: "Head tilted slightly upward, soft lifted eyes, elegant expression." },
             { id: 35, name: "The Soft Profile", desc: "Side profile, lips relaxed, calm gentle aura." },
             { id: 36, name: "The Back Lean", desc: "Leaning slightly backward, neck relaxed, closed eyes. (back pose)" },
             { id: 37, name: "The Floor Sit", desc: "Sitting on floor, knees bent sideways, gentle thoughtful expression." },
-            { id: 38, name: "The Half Smile", desc: "Standing tall and confident, body angled 45 degrees to camera, looking at camera with a natural relaxed half-smile." },
-            { id: 39, name: "The Neutral Beauty", desc: "A still, standing museum pose with arms relaxed at the sides. Body is straight and facing the camera, with a neutral and expressionless face." },
+            { id: 38, name: "The Half Smile", desc: "Natural relaxed half-smile, warm and calm energy." },
+            { id: 39, name: "The Neutral Beauty", desc: "Expressionless, stillness-focused face, calm posture." },
             { id: 40, name: "The Walk Away", desc: "Walking away from camera, slight turn of head back. (back pose)" }
         ];
 
@@ -898,42 +885,6 @@
         let garmentType = 'regular'; // 'regular' or 'ethnic'
 
         // Initialize
-        // Handle accessory upload with preview
-        function handleAccessoryUpload(event, type) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const imageData = e.target.result;
-                uploadedImages[type] = imageData;
-
-                if (type === 'jewellery') {
-                    document.getElementById('jewelleryPreviewImg').src = imageData;
-                    document.getElementById('jewelleryPreview').style.display = 'block';
-                } else if (type === 'shoes') {
-                    document.getElementById('shoesPreviewImg').src = imageData;
-                    document.getElementById('shoesPreview').style.display = 'block';
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // Remove accessory
-        function removeAccessory(type) {
-            uploadedImages[type] = null;
-
-            if (type === 'jewellery') {
-                document.getElementById('jewellery').value = '';
-                document.getElementById('jewelleryPreview').style.display = 'none';
-                document.getElementById('jewelleryPreviewImg').src = '';
-            } else if (type === 'shoes') {
-                document.getElementById('shoes').value = '';
-                document.getElementById('shoesPreview').style.display = 'none';
-                document.getElementById('shoesPreviewImg').src = '';
-            }
-        }
-
         function init() {
             loadFolderImages();
             loadPosesGrid();
@@ -943,22 +894,20 @@
         // Load images from local folder (model1.png - model10.png, bg1.png - bg10.png)
         function loadFolderImages() {
             // Load model images from folder
-            // Load model images from folder
-        for (let i = 1; i <= 10; i++) {
-        folderModelImages.push({
-            src: `./images/model${i}.png`,
-            type: 'folder'
-        });
-        }
+            for (let i = 1; i <= 10; i++) {
+                folderModelImages.push({
+                    src: `images/model${i}.png`,
+                    type: 'folder'
+                });
+            }
 
-        // Load background images from folder
-        for (let i = 1; i <= 10; i++) {
-        folderBgImages.push({
-            src: `./images/bg${i}.png`,
-            type: 'folder'
-        });
-        }
-
+            // Load background images from folder
+            for (let i = 1; i <= 10; i++) {
+                folderBgImages.push({
+                    src: `images/bg${i}.png`,
+                    type: 'folder'
+                });
+            }
 
             loadModelGrid();
             loadBgGrid();
@@ -1413,9 +1362,6 @@
             loadingText.textContent = `Generating ${index + 1} of ${total}: ${pose.name}`;
             loadingSubtext.textContent = 'This may take 30-60 seconds...';
 
-            console.log('🚀 Starting image generation for pose:', pose.name);
-            console.log('API Key exists:', API_KEY ? 'Yes (length: ' + API_KEY.length + ')' : 'No');
-
             const shotInstruction = getShotInstructions(index, total);
 
             let accessoryInstructions = '';
@@ -1467,8 +1413,8 @@ Follow these rules in order of importance:
 
 Generate ONE single, cohesive image.
 `;
-            const apiUrl = "/generate";
 
+            const apiUrl = "/generate";
 
             const parts = [
                 { text: prompt },
@@ -1488,22 +1434,16 @@ Generate ONE single, cohesive image.
                 }
             };
 
-            console.log('📤 Sending request to API...');
-            
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody)
             });
 
-            console.log('📥 Response status:', response.status, response.statusText);
-            
             const data = await response.json();
-            console.log('📦 Response data:', data);
 
             if (data.candidates && data.candidates[0].content.parts[0].inlineData) {
                 const imageData = data.candidates[0].content.parts[0].inlineData.data;
-                console.log('✅ Image generated successfully');
                 return {
                     success: true,
                     imageData: 'data:image/jpeg;base64,' + imageData,
@@ -1511,11 +1451,7 @@ Generate ONE single, cohesive image.
                     shotType: 'Full Body'
                 };
             } else {
-                console.error('❌ No image in response. Full response:', data);
-                if (data.error) {
-                    throw new Error(`API Error: ${data.error.message || JSON.stringify(data.error)}`);
-                }
-                throw new Error('No image generated in response. Check console for details.');
+                throw new Error('No image generated in response');
             }
         }
 
@@ -1540,11 +1476,9 @@ Generate ONE single, cohesive image.
 
                 for (let i = 0; i < selectedPoses.length; i++) {
                     try {
-                        console.log(`\n=== Generating image ${i + 1}/${selectedPoses.length} ===`);
                         const result = await generateSingleImage(finalComposite, selectedPoses[i], i, selectedPoses.length);
 
                         if (result.success) {
-                            console.log(`✅ Image ${i + 1} generated successfully`);
                             // Store for bulk download
                             allGeneratedImages.push({
                                 data: result.imageData,
@@ -1570,11 +1504,7 @@ Generate ONE single, cohesive image.
                             successCount++;
                         }
                     } catch (error) {
-                        console.error(`❌ Error generating pose ${selectedPoses[i]}:`, error);
-                        console.error('Error details:', error.message);
-                        console.error('Stack trace:', error.stack);
-                        // Show user-friendly error
-                        alert(`Failed to generate image ${i + 1}: ${error.message}`);
+                        console.error(`Error generating pose ${selectedPoses[i]}:`, error);
                     }
                 }
 
@@ -1763,9 +1693,7 @@ ${focusInstruction}
 
 Execute this simple crop operation.
 `;
-
             const apiUrl = "/generate";
-
             const parts = [
                 { text: prompt },
                 { inline_data: { mime_type: "image/jpeg", data: base64ToImage(imageData) } }
