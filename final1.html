@@ -729,18 +729,30 @@
                     Accessories
                 </div>
                 <p class="section-desc">Optional: Add jewellery or footwear</p>
+
                 <button class="upload-btn" onclick="document.getElementById('jewellery').click()">
                     + Upload Jewellery
                 </button>
-                <input type="file" id="jewellery" accept="image/*" style="display:none;">
+                <input type="file" id="jewellery" accept="image/*" style="display:none;" onchange="handleAccessoryUpload(event, 'jewellery')">
+                <div id="jewelleryPreview" class="preview-container" style="display:none; margin-top: 10px; text-align: center;">
+                    <img id="jewelleryPreviewImg" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #333;">
+                    <br>
+                    <button onclick="removeAccessory('jewellery')" style="margin-top: 8px; padding: 6px 12px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Remove Jewellery</button>
+                </div>
                 <input type="text" class="text-input" id="jewelleryPrompt" placeholder="Or describe jewellery...">
-                
+
                 <button class="upload-btn" onclick="document.getElementById('shoes').click()" style="margin-top: 12px;">
                     + Upload Footwear
                 </button>
-                <input type="file" id="shoes" accept="image/*" style="display:none;">
+                <input type="file" id="shoes" accept="image/*" style="display:none;" onchange="handleAccessoryUpload(event, 'shoes')">
+                <div id="shoesPreview" class="preview-container" style="display:none; margin-top: 10px; text-align: center;">
+                    <img id="shoesPreviewImg" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #333;">
+                    <br>
+                    <button onclick="removeAccessory('shoes')" style="margin-top: 8px; padding: 6px 12px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Remove Footwear</button>
+                </div>
                 <input type="text" class="text-input" id="shoesPrompt" placeholder="Or describe footwear...">
             </div>
+
 
             <!-- Section 5: Pose Selection -->
             <div class="section">
@@ -810,8 +822,9 @@
 
     <!-- JSZip Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  
+  <script src="config.js"></script>
 <script>
+  const API_KEY = GEMINI_API_KEY; // ✅ get the key from config.js
  // Add your API key here
         
         let allGeneratedImages = []; // Store all generated images for bulk download
@@ -885,6 +898,42 @@
         let garmentType = 'regular'; // 'regular' or 'ethnic'
 
         // Initialize
+        // Handle accessory upload with preview
+        function handleAccessoryUpload(event, type) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageData = e.target.result;
+                uploadedImages[type] = imageData;
+
+                if (type === 'jewellery') {
+                    document.getElementById('jewelleryPreviewImg').src = imageData;
+                    document.getElementById('jewelleryPreview').style.display = 'block';
+                } else if (type === 'shoes') {
+                    document.getElementById('shoesPreviewImg').src = imageData;
+                    document.getElementById('shoesPreview').style.display = 'block';
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Remove accessory
+        function removeAccessory(type) {
+            uploadedImages[type] = null;
+
+            if (type === 'jewellery') {
+                document.getElementById('jewellery').value = '';
+                document.getElementById('jewelleryPreview').style.display = 'none';
+                document.getElementById('jewelleryPreviewImg').src = '';
+            } else if (type === 'shoes') {
+                document.getElementById('shoes').value = '';
+                document.getElementById('shoesPreview').style.display = 'none';
+                document.getElementById('shoesPreviewImg').src = '';
+            }
+        }
+
         function init() {
             loadFolderImages();
             loadPosesGrid();
@@ -1363,6 +1412,7 @@
             loadingSubtext.textContent = 'This may take 30-60 seconds...';
 
             console.log('🚀 Starting image generation for pose:', pose.name);
+            console.log('API Key exists:', API_KEY ? 'Yes (length: ' + API_KEY.length + ')' : 'No');
 
             const shotInstruction = getShotInstructions(index, total);
 
@@ -1415,69 +1465,54 @@ Follow these rules in order of importance:
 
 Generate ONE single, cohesive image.
 `;
-            // ✅ NEW
-            // ✅ Corrected version (fully compatible with your /api/generate backend)
-            const apiUrl = "/api/generate"; // ✅ your Vercel backend route
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${API_KEY}`;
 
             const parts = [
-            { text: prompt },
-            { inline_data: { mime_type: "image/jpeg", data: base64ToImage(uploadedImages.model) } },
-            { inline_data: { mime_type: "image/jpeg", data: base64ToImage(compositeCloth) } },
-            { inline_data: { mime_type: "image/jpeg", data: base64ToImage(uploadedImages.background) } }
+                { text: prompt },
+                { inline_data: { mime_type: "image/jpeg", data: base64ToImage(uploadedImages.model) } },
+                { inline_data: { mime_type: "image/jpeg", data: base64ToImage(compositeCloth) } },
+                { inline_data: { mime_type: "image/jpeg", data: base64ToImage(uploadedImages.background) } }
             ];
 
             const requestBody = {
-            contents: [{ parts }],
-            generationConfig: {
-                temperature: 0.4,
-                topK: 32,
-                topP: 1,
-                maxOutputTokens: 4096,
-                responseModalities: ["IMAGE"]
-            }
+                contents: [{ parts }],
+                generationConfig: {
+                    temperature: 0.4,
+                    topK: 32,
+                    topP: 1,
+                    maxOutputTokens: 4096,
+                    responseModalities: ["IMAGE"]
+                }
             };
 
             console.log('📤 Sending request to API...');
-
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 60000);
-
+            
             const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestBody),
-            signal: controller.signal
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody)
             });
-            clearTimeout(timeout);
-
-            // ✅ handle HTTP errors safely
-            if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`❌ HTTP error ${response.status}: ${errorText}`);
-            throw new Error(`HTTP ${response.status}: ${errorText}`);
-            }
 
             console.log('📥 Response status:', response.status, response.statusText);
-
+            
             const data = await response.json();
             console.log('📦 Response data:', data);
 
-            // ✅ Handle the API response
             if (data.candidates && data.candidates[0].content.parts[0].inlineData) {
-            const imageData = data.candidates[0].content.parts[0].inlineData.data;
-            console.log('✅ Image generated successfully');
-            return {
-                success: true,
-                imageData: 'data:image/jpeg;base64,' + imageData,
-                poseName: pose?.name || "Unknown Pose",
-                shotType: 'Full Body'
-            };
+                const imageData = data.candidates[0].content.parts[0].inlineData.data;
+                console.log('✅ Image generated successfully');
+                return {
+                    success: true,
+                    imageData: 'data:image/jpeg;base64,' + imageData,
+                    poseName: pose.name,
+                    shotType: 'Full Body'
+                };
             } else {
-            console.error('❌ No image in response. Full response:', data);
-            if (data.error) {
-                throw new Error(`API Error: ${data.error.message || JSON.stringify(data.error)}`);
-            }
-            throw new Error('No image generated in response. Check console for details.');
+                console.error('❌ No image in response. Full response:', data);
+                if (data.error) {
+                    throw new Error(`API Error: ${data.error.message || JSON.stringify(data.error)}`);
+                }
+                throw new Error('No image generated in response. Check console for details.');
             }
         }
 
@@ -1726,9 +1761,7 @@ ${focusInstruction}
 Execute this simple crop operation.
 `;
 
-            // ✅ NEW
-            const apiUrl = "/api/generate"; // call your own backend
-
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${API_KEY}`;
 
             const parts = [
                 { text: prompt },
@@ -1824,89 +1857,6 @@ Execute this simple crop operation.
 
         // Initialize app
         init();
-    
-    // Image compression function to keep payload under 4.3MB
-    async function compressImage(base64String, maxSizeKB = 4300) {
-      try {
-        // Remove data:image/jpeg;base64, prefix if present
-        const base64Data = base64String.replace(/^data:image\/\w+;base64,/, '');
-
-        // Calculate current size in KB
-        const currentSizeKB = (base64Data.length * 3) / 4 / 1024;
-        console.log(`📊 Original image size: ${currentSizeKB.toFixed(2)} KB`);
-
-        // If already under limit, return as is
-        if (currentSizeKB <= maxSizeKB) {
-          console.log('✅ Image already under size limit');
-          return base64String;
-        }
-
-        // Create an image element
-        const img = new Image();
-        await new Promise((resolve, reject) => {
-          img.onload = resolve;
-          img.onerror = reject;
-          img.src = base64String.startsWith('data:') ? base64String : `data:image/jpeg;base64,${base64String}`;
-        });
-
-        // Calculate compression ratio needed
-        const ratio = maxSizeKB / currentSizeKB;
-        const targetQuality = Math.max(0.3, Math.min(0.9, ratio * 0.9)); // Between 0.3 and 0.9
-
-        // Try different quality levels until we get under the limit
-        let quality = targetQuality;
-        let compressedBase64 = '';
-        let attempts = 0;
-        const maxAttempts = 5;
-
-        while (attempts < maxAttempts) {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-
-          // Optionally resize if needed
-          let width = img.width;
-          let height = img.height;
-
-          // If still too large, reduce dimensions
-          if (quality < 0.4) {
-            const scale = Math.sqrt(ratio);
-            width = Math.floor(img.width * scale);
-            height = Math.floor(img.height * scale);
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          ctx.drawImage(img, 0, 0, width, height);
-
-          // Compress to JPEG with quality setting
-          compressedBase64 = canvas.toDataURL('image/jpeg', quality);
-
-          // Check size
-          const compressedData = compressedBase64.replace(/^data:image\/\w+;base64,/, '');
-          const compressedSizeKB = (compressedData.length * 3) / 4 / 1024;
-
-          console.log(`🔄 Attempt ${attempts + 1}: Quality ${quality.toFixed(2)}, Size: ${compressedSizeKB.toFixed(2)} KB`);
-
-          if (compressedSizeKB <= maxSizeKB) {
-            console.log(`✅ Compressed successfully from ${currentSizeKB.toFixed(2)} KB to ${compressedSizeKB.toFixed(2)} KB`);
-            return compressedData;
-          }
-
-          // Reduce quality for next attempt
-          quality *= 0.85;
-          attempts++;
-        }
-
-        console.warn('⚠️ Could not compress below limit, returning best attempt');
-        return compressedBase64.replace(/^data:image\/\w+;base64,/, '');
-
-      } catch (error) {
-        console.error('❌ Compression error:', error);
-        // Return original if compression fails
-        return base64String.replace(/^data:image\/\w+;base64,/, '');
-      }
-    }
-
-</script>
+    </script>
 </body>
 </html>

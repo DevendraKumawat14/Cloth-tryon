@@ -4,178 +4,532 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI ModelSwap Studio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Use Inter font */
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        
-        /* Custom styles for the file input */
-        input[type="file"]::file-selector-button {
-            @apply bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg cursor-pointer hover:bg-blue-700 transition-colors duration-200;
+        :root {
+            --color-primary: #000000;
+            --color-primary-hover: #000000;
+            --color-primary-active: #1d7478;
+            --color-bg: #fcfcf9;
+            --color-surface: #ffffff;
+            --color-text: #134252;
+            --color-text-secondary: #626c71;
+            --color-border: rgba(94, 82, 64, 0.2);
+            --color-secondary: rgba(94, 82, 64, 0.12);
+            --color-secondary-hover: rgba(94, 82, 64, 0.2);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            --radius-base: 8px;
+            --radius-lg: 12px;
         }
 
-        /* Simple loading spinner */
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 4px solid #3B82F6; /* blue-500 */
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
+
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 48px;
+        }
+
+
+        header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+
+        h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+
+        .subtitle {
+            font-size: 18px;
+            color: var(--color-text-secondary);
+        }
+
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+        }
+
+
+        @media (max-width: 968px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 24px;
+            }
+
+
+            h1 {
+                font-size: 28px;
+            }
+        }
+
+
+        .section {
+            margin-bottom: 32px;
+        }
+
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 16px;
+        }
+
+
+        .label {
+            display: block;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--color-text);
+            margin-bottom: 12px;
+        }
+
+
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            background: var(--color-surface);
+            font-size: 14px;
+            color: var(--color-text);
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+
+        input[type="file"]:hover {
+            border-color: var(--color-primary);
+        }
+
+
+        input[type="file"]:focus {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
+
+        input[type="file"]::file-selector-button {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            margin-right: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+
+        input[type="file"]::file-selector-button:hover {
+            background: var(--color-primary-hover);
+        }
+
+
+        .preview-box {
+            margin-top: 16px;
+            width: 100%;
+            min-height: 160px;
+            background: var(--color-bg);
+            border: 2px dashed var(--color-border);
+            border-radius: var(--radius-base);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            max-height: 240px;
+        }
+
+
+        .preview-box.file-list {
+            align-items: stretch;
+        }
+
+
+        .preview-placeholder {
+            color: var(--color-text-secondary);
+            font-size: 14px;
+        }
+
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            margin-bottom: 8px;
+        }
+
+
+        .file-item img {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-right: 12px;
+        }
+
+
+        .file-name {
+            font-size: 14px;
+            color: var(--color-text);
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: var(--radius-base);
+        }
+
+
+        .divider {
+            text-align: center;
+            color: var(--color-text-secondary);
+            margin: 16px 0;
+            font-size: 14px;
+        }
+
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            background: var(--color-surface);
+            color: var(--color-text);
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 80px;
+            transition: border-color 0.2s;
+        }
+
+
+        textarea:focus {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+            border-color: var(--color-primary);
+        }
+
+
+        textarea::placeholder {
+            color: var(--color-text-secondary);
+            opacity: 0.6;
+        }
+
+
+        .btn {
+            width: 100%;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: var(--radius-base);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 24px;
+        }
+
+
+        .btn:hover:not(:disabled) {
+            background: var(--color-primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(50, 184, 198, 0.3);
+        }
+
+
+        .btn:active:not(:disabled) {
+            background: var(--color-primary-active);
+            transform: translateY(0);
+        }
+
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+
+        .btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+
+        .results-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        .output-container {
+            width: 100%;
+            min-height: 400px;
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            padding: 16px;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+
+
+        .spinner {
+            border: 4px solid rgba(50, 184, 198, 0.2);
+            border-radius: 50%;
+            border-top: 4px solid var(--color-primary);
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            margin: auto;
+        }
+
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
-        /* Custom message box */
-        #messageBox {
-            @apply fixed top-0 left-1/2 -translate-x-1/2 p-4 bg-red-600 text-white rounded-b-lg shadow-lg opacity-0 transition-all duration-300 -translate-y-full;
-        }
-        
-        #messageBox.show {
-            @apply opacity-100 translate-y-0;
+
+
+        .result-item {
+            position: relative;
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            padding: 12px;
+            margin-bottom: 16px;
         }
 
-        /* Custom select arrow */
-        select {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239CA3AF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.5rem center;
-            background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
+
+        .result-item img {
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+            display: block;
+        }
+
+
+        .download-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+
+        .download-btn:hover {
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+
+        .download-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 16px;
+            border-radius: var(--radius-base);
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+
+        #messageBox {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100%);
+            background: #dc2626;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 0 0 var(--radius-base) var(--radius-base);
+            box-shadow: var(--shadow-md);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+            font-weight: 500;
+        }
+
+
+        #messageBox.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+
+        .hidden {
+            display: none !important;
+        }
+
+
+        .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200 min-h-screen flex items-center justify-center p-4">
-
-    <div class="w-full max-w-6xl bg-gray-800 shadow-2xl rounded-2xl p-8 md:p-12">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold text-white">AI ModelSwap Studio</h1>
-            <p class="text-lg text-gray-400 mt-2">Swap models across multiple photos at once with a description.</p>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI ModelSwap Studio</h1>
+            <p class="subtitle">Swap models and backgrounds across multiple photos at once</p>
         </header>
 
-        <main class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-            
-            <div class="flex flex-col space-y-6">
-                
-                <div>
-                    <label for="imageUpload" class="block text-xl font-semibold mb-3 text-white">1. Upload Original Photos (Multiple)</label>
-                    <input type="file" id="imageUpload" accept="image/png, image/jpeg" class="w-full text-sm text-gray-300 file:mr-4 file:border-0 file:outline-none focus:outline-none" multiple>
-                    
-                    <div id="originalImagePreviewArea" class="mt-4 w-full h-40 bg-gray-700 rounded-lg flex flex-col p-4 border-2 border-dashed border-gray-600 overflow-y-auto">
-                        <span id="originalPreviewPlaceholder" class="text-gray-400 m-auto">File list will appear here</span>
-                        </div>
-                </div>
-                
-                <div>
-                    <label class="block text-xl font-semibold mb-3 text-white">2. Define New Model</label>
-                    
-                    <label for="modelPresetSelect" class="block text-lg font-medium mb-2 text-gray-300">Select a Preset Model (Optional)</label>
-                    <select id="modelPresetSelect" class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-600 mb-2">
-                        <option value="">-- Select a preset --</option>
-                        </select>
 
-                    <div class="w-full flex justify-center mb-4">
-                        <img id="modelPresetPreview" src="" alt="Model preview" class="hidden w-24 h-24 object-cover rounded-lg bg-gray-700 border border-gray-600">
-                    </div>
-                    
-                    <label for="modelDescription" class="block text-lg font-medium mb-2 text-gray-300">Describe the Desired Model</label>
-                    <textarea id="modelDescription" rows="4" class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="e.g., 'A professional-looking woman with long brown hair, smiling brightly', or 'A strong male model with short dark hair and a serious expression'."></textarea>
-                </div>
-                
-                <div>
-                    <label for="backgroundImageUpload" class="block text-xl font-semibold mb-3 text-white">3. (Optional) Change Background</label>
-                    <input type="file" id="backgroundImageUpload" accept="image/png, image/jpeg" class="w-full text-sm text-gray-300 file:mr-4 file:border-0 file:outline-none focus:outline-none">
-                    
-                    <div class="mt-4 w-full h-40 bg-gray-700 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-600 overflow-hidden">
-                        <img id="backgroundImagePreview" src="" alt="Background image preview" class="hidden h-full w-full object-contain">
-                        <span id="backgroundPreviewPlaceholder" class="text-gray-400">Background preview</span>
+        <main class="grid">
+            <div>
+                <div class="section">
+                    <h2 class="section-title">1. Upload Original Photos</h2>
+                    <label for="imageUpload" class="label">Select multiple images</label>
+                    <input type="file" id="imageUpload" accept="image/png, image/jpeg, image/webp" multiple>
+
+                    <div id="originalImagePreviewArea" class="preview-box file-list">
+                        <span id="originalPreviewPlaceholder" class="preview-placeholder">File list will appear here</span>
                     </div>
                 </div>
 
-                <div>
-                    <button id="generateBtn" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19 14.5m-4.5-11.396c.251.023.501.05.75.082M19 14.5v.218c0 .13.02.258.058.385a1.81 1.81 0 01-2.427 2.053M19 14.5A2.25 2.25 0 0016.75 12.25h-1.5a2.25 2.25 0 00-2.25 2.25v.218A2.25 2.25 0 0112 16.75c-2.42 0-4.398 1.978-4.398 4.398s1.978 4.398 4.398 4.398 4.398-1.978 4.398-4.398M19 14.5c.13.02.258.058.385.058a1.81 1.81 0 002.053-2.427M5 14.5v.218c0 .13-.02.258-.058.385a1.81 1.81 0 002.427 2.053M5 14.5A2.25 2.25 0 017.25 12.25h1.5a2.25 2.25 0 012.25 2.25v.218A2.25 2.25 0 0012 16.75c2.42 0 4.398 1.978 4.398 4.398s-1.978 4.398-4.398 4.398-4.398-1.978-4.398-4.398M5 14.5c-.13.02-.258.058-.385.058a1.81 1.81 0 01-2.053-2.427" />
-                        </svg>
-                        <span>Swap Models</span>
-                    </button>
+                <div class="section">
+                    <h2 class="section-title">2. Define New Model</h2>
+
+                    <label for="targetImageUpload" class="label">Upload target model photo (optional)</label>
+                    <input type="file" id="targetImageUpload" accept="image/png, image/jpeg, image/webp">
+
+                    <div class="preview-box">
+                        <img id="targetImagePreview" src="" alt="Target model preview" class="preview-image hidden">
+                        <span id="targetPreviewPlaceholder" class="preview-placeholder">Target model preview</span>
+                    </div>
+
+
+                    <p class="divider">— OR —</p>
+
+
+                    <label for="modelDescription" class="label">Describe the desired model (optional)</label>
+                    <textarea id="modelDescription" placeholder="e.g., 'A professional-looking woman with long brown hair, smiling brightly'"></textarea>
                 </div>
+
+
+                <div class="section">
+                    <h2 class="section-title">3. Define New Background</h2>
+
+                    <label for="bgImageUpload" class="label">Upload background photo (optional)</label>
+                    <input type="file" id="bgImageUpload" accept="image/png, image/jpeg, image/webp">
+
+                    <div class="preview-box">
+                        <img id="bgImagePreview" src="" alt="Background preview" class="preview-image hidden" style="opacity: 0.8;">
+                        <span id="bgPreviewPlaceholder" class="preview-placeholder">Background preview</span>
+                    </div>
+                </div>
+
+                <button id="generateBtn" class="btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19 14.5m-4.5-11.396c.251.023.501.05.75.082M19 14.5v.218c0 .13.02.258.058.385a1.81 1.81 0 01-2.427 2.053M19 14.5A2.25 2.25 0 0016.75 12.25h-1.5a2.25 2.25 0 00-2.25 2.25v.218A2.25 2.25 0 0012 16.75c-2.42 0-4.398 1.978-4.398 4.398s1.978 4.398 4.398 4.398 4.398-1.978 4.398-4.398M19 14.5c.13.02.258.058.385.058a1.81 1.81 0 002.053-2.427M5 14.5v.218c0 .13-.02.258-.058.385a1.81 1.81 0 002.427 2.053M5 14.5A2.25 2.25 0 017.25 12.25h1.5a2.25 2.25 0 012.25 2.25v.218A2.25 2.25 0 0012 16.75c2.42 0 4.398 1.978 4.398 4.398s-1.978 4.398-4.398 4.398-4.398-1.978-4.398-4.398M5 14.5c-.13.02-.258.058-.385.058a1.81 1.81 0 01-2.053-2.427" />
+                    </svg>
+                    <span>Swap Model & Background</span>
+                </button>
             </div>
-            
-            <div class="flex flex-col space-y-6">
-                <label class="block text-xl font-semibold mb-3 text-white">4. Results Gallery</label>
-                
-                <div id="outputContainer" class="w-full min-h-[28rem] bg-gray-700 rounded-lg flex flex-col p-4 border-2 border-gray-600 overflow-y-auto">
-                    <div id="loadingSpinner" class="spinner hidden mx-auto my-auto"></div>
-                    <span id="outputPlaceholder" class="text-gray-400 m-auto">Your new images will appear here</span>
+
+            <div class="results-section">
+                <h2 class="section-title">4. Results Gallery</h2>
+
+                <div id="outputContainer" class="output-container">
+                    <div id="loadingSpinner" class="spinner hidden"></div>
+                    <div id="outputPlaceholder" class="flex-center">
+                        <span class="preview-placeholder">Your new images will appear here</span>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
-    
+
     <div id="messageBox">
         <span id="messageText"></span>
     </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="config.js"></script>
-
+    <script src="config.js"></script>
     <script type="module">
-        // --- 0. Model Preset Data ---
-        // (Using placeholder images. Replace with your actual image URLs)
-        const modelPresets = [
-            {
-                name: " Rugged Man (Beard)",
-                prompt: "A rugged Caucasian male with a short beard and green eyes, textured skin.",
-                preview: "src/images/m1.png"
-            },
-            {
-                name: "Youthfull smiling man (curly hair)",
-                prompt: "A young Caucasian male model with curly blonde hair and a friendly smile.",
-                preview: "src/images/m2.png"
-            },
-            {
-                name: "Handsome Caucassian male (clean shaven)",
-                prompt: "handsome Caucasian male model with short brown hair and blue eyes, clean-shaven",
-                preview: "src/images/m3.png"
-            },
-            {
-                name: "Sophisticated Woman (long wavy blonde hair)",
-                prompt: "A 25-year-old Caucasian female with long wavy blonde hair, blue eyes, and fair, flawless skin. Symmetrical facial features, professional photoshoot, hyperrealistic, 8k.",
-                preview: "src/images/f1.png"
-            }
-            ,
-            {
-                name: "Young Woman (Sharp blonde bob)",
-                prompt: "A Caucasian female model with a sharp blonde bob, piercing green eyes, and strong cheekbones. Porcelain skin, elegant neck, hyperrealistic, editorial photoshoot lighting.",
-                preview: "src/images/f2.png"
-            }
-        ];
-
-        // --- 1. DOM Elements ---
         const imageUpload = document.getElementById('imageUpload');
         const originalImagePreviewArea = document.getElementById('originalImagePreviewArea');
         const originalPreviewPlaceholder = document.getElementById('originalPreviewPlaceholder');
-        
-        // Elements for target model definition
+
+        const targetImageUpload = document.getElementById('targetImageUpload');
+        const targetImagePreview = document.getElementById('targetImagePreview');
+        const targetPreviewPlaceholder = document.getElementById('targetPreviewPlaceholder');
         const modelDescription = document.getElementById('modelDescription');
-        const modelPresetSelect = document.getElementById('modelPresetSelect'); // New
-        const modelPresetPreview = document.getElementById('modelPresetPreview'); // New
 
-        // Elements for background image (New)
-        const backgroundImageUpload = document.getElementById('backgroundImageUpload');
-        const backgroundImagePreview = document.getElementById('backgroundImagePreview');
-        const backgroundPreviewPlaceholder = document.getElementById('backgroundPreviewPlaceholder');
 
-        // Output elements
+        const bgImageUpload = document.getElementById('bgImageUpload');
+        const bgImagePreview = document.getElementById('bgImagePreview');
+        const bgPreviewPlaceholder = document.getElementById('bgPreviewPlaceholder');
+
+
         const generateBtn = document.getElementById('generateBtn');
         const outputContainer = document.getElementById('outputContainer');
         const loadingSpinner = document.getElementById('loadingSpinner');
@@ -183,61 +537,48 @@
         const messageBox = document.getElementById('messageBox');
         const messageText = document.getElementById('messageText');
 
-        // State variables
+
         let originalImageBase64List = [];
-        let backgroundImageBase64 = null; // New
+        let targetImageBase64 = null;
+        let backgroundImageBase64 = null;
 
-        // --- 2. Populate Preset Dropdown on Load ---
-        document.addEventListener('DOMContentLoaded', () => {
-            modelPresets.forEach(preset => {
-                const option = document.createElement('option');
-                option.value = preset.prompt;
-                option.textContent = preset.name;
-                option.dataset.previewSrc = preset.preview; // Store preview URL
-                modelPresetSelect.appendChild(option);
-            });
-        });
 
-        // --- 3. Original Images Upload and Preview ---
         imageUpload.addEventListener('change', async (event) => {
             const files = event.target.files;
             if (!files || files.length === 0) {
                 originalImageBase64List = [];
-                originalImagePreviewArea.innerHTML = ''; // Clear preview area
+                originalImagePreviewArea.innerHTML = '';
                 originalImagePreviewArea.appendChild(originalPreviewPlaceholder);
                 originalPreviewPlaceholder.classList.remove('hidden');
                 return;
             }
 
+
             originalImageBase64List = [];
-            originalImagePreviewArea.innerHTML = ''; // Clear preview area
+            originalImagePreviewArea.innerHTML = '';
             originalPreviewPlaceholder.classList.add('hidden');
-            
+
             const filePromises = Array.from(files).map(file => {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         const base64Data = e.target.result.split(',')[1];
-                        
-                        // Create preview element
                         const previewWrapper = document.createElement('div');
-                        previewWrapper.className = 'flex items-center p-2 bg-gray-600 rounded-lg mb-2';
+                        previewWrapper.className = 'file-item';
                         const previewImg = document.createElement('img');
                         previewImg.src = e.target.result;
-                        previewImg.className = 'w-12 h-12 object-cover rounded-md mr-3';
                         const fileName = document.createElement('span');
                         fileName.textContent = file.name;
-                        fileName.className = 'text-sm text-gray-200 truncate';
-                        
+                        fileName.className = 'file-name';
                         previewWrapper.appendChild(previewImg);
                         previewWrapper.appendChild(fileName);
-                        
                         resolve({ base64Data, previewElement: previewWrapper });
                     };
                     reader.onerror = reject;
                     reader.readAsDataURL(file);
                 });
             });
+
 
             try {
                 const results = await Promise.all(filePromises);
@@ -250,82 +591,68 @@
                 showMessage("There was an error reading some files.");
             }
         });
-        
-        // --- 4. (New) Background Image Upload and Preview ---
-        backgroundImageUpload.addEventListener('change', (event) => {
+
+        targetImageUpload.addEventListener('change', (event) => handleSingleImageUpload(event, targetImagePreview, targetPreviewPlaceholder, (base64) => {
+             targetImageBase64 = base64;
+             modelDescription.value = '';
+        }));
+
+
+        bgImageUpload.addEventListener('change', (event) => handleSingleImageUpload(event, bgImagePreview, bgPreviewPlaceholder, (base64) => {
+            backgroundImageBase64 = base64;
+        }));
+
+
+        function handleSingleImageUpload(event, previewEl, placeholderEl, callback) {
             const file = event.target.files[0];
             if (!file) {
-                backgroundImageBase64 = null;
-                backgroundImagePreview.classList.add('hidden');
-                backgroundPreviewPlaceholder.classList.remove('hidden');
+                callback(null);
+                previewEl.classList.add('hidden');
+                placeholderEl.classList.remove('hidden');
                 return;
             }
-
             const reader = new FileReader();
             reader.onload = (e) => {
-                backgroundImagePreview.src = e.target.result;
-                backgroundImagePreview.classList.remove('hidden');
-                backgroundPreviewPlaceholder.classList.add('hidden');
-                // Store the base64 data *without* the "data:image/jpeg;base64," prefix
-                backgroundImageBase64 = e.target.result.split(',')[1];
+                previewEl.src = e.target.result;
+                previewEl.classList.remove('hidden');
+                placeholderEl.classList.add('hidden');
+                callback(e.target.result.split(',')[1]);
             };
             reader.readAsDataURL(file);
-        });
+        }
 
-        // --- 5. (New) Preset Dropdown Change ---
-        modelPresetSelect.addEventListener('change', (event) => {
-            const selectedOption = event.target.options[event.target.selectedIndex];
-            const prompt = selectedOption.value;
-            const previewSrc = selectedOption.dataset.previewSrc;
 
-            modelDescription.value = prompt; // Set textarea value
-
-            if (previewSrc) {
-                modelPresetPreview.src = previewSrc;
-                modelPresetPreview.classList.remove('hidden');
-            } else {
-                modelPresetPreview.classList.add('hidden');
-                modelPresetPreview.src = '';
-            }
-        });
-
-        // --- 6. (Updated) Clear preset if description is manually typed ---
         modelDescription.addEventListener('input', () => {
-            if (modelDescription.value.trim() !== modelPresetSelect.value) {
-                // If description is typed and doesn't match the preset, clear the preset
-                modelPresetSelect.value = ''; 
-                modelPresetPreview.classList.add('hidden');
-                modelPresetPreview.src = '';
+            if (modelDescription.value.trim() !== '') {
+                targetImageUpload.value = null;
+                targetImageBase64 = null;
+                targetImagePreview.classList.add('hidden');
+                targetPreviewPlaceholder.classList.remove('hidden');
             }
         });
 
-        // --- 7. Show Custom Error Message ---
+
         function showMessage(message) {
             messageText.textContent = message;
             messageBox.classList.add('show');
-            
-            // Hide message after 3 seconds
-            setTimeout(() => {
-                messageBox.classList.remove('show');
-            }, 3000);
+            setTimeout(() => messageBox.classList.remove('show'), 3000);
         }
 
-        // --- 8. (Updated) Generate Button Click ---
+
         generateBtn.addEventListener('click', async () => {
-            // Validation
             if (originalImageBase64List.length === 0) {
                 showMessage("Please upload at least one original image.");
                 return;
             }
-            // Ensure description is provided
-            if (modelDescription.value.trim() === '') {
-                showMessage("Please describe the desired model or select a preset.");
+            if (!targetImageBase64 && modelDescription.value.trim() === '') {
+                showMessage("Please define the target model (Image or Description).");
                 return;
             }
 
-            // Set loading state
+
             setLoading(true);
             let hasFailures = false;
+
 
             for (const originalBase64 of originalImageBase64List) {
                 try {
@@ -334,176 +661,172 @@
                         appendResultToGallery(resultBase64);
                     } else {
                         hasFailures = true;
-                        appendErrorToGallery("An image failed to process. See console for details.");
+                        appendErrorToGallery("An image failed to process.");
                     }
                 } catch (error) {
                     hasFailures = true;
-                    appendErrorToGallery(`An error occurred: ${error.message}`);
+                    appendErrorToGallery(`Error: ${error.message}`);
                 }
             }
-            
+
             setLoading(false);
-            
-            if (hasFailures) {
-                showMessage("Some images failed to process.");
-            }
+            if (hasFailures) showMessage("Some images failed to process.");
         });
 
-        // --- 9. Set Loading State ---
+
         function setLoading(isLoading) {
             if (isLoading) {
                 generateBtn.disabled = true;
-                generateBtn.classList.add('opacity-50');
-                // Clear output container and show spinner
                 outputContainer.innerHTML = ''; 
                 outputContainer.appendChild(loadingSpinner);
                 loadingSpinner.classList.remove('hidden');
-                outputPlaceholder.classList.add('hidden');
             } else {
                 generateBtn.disabled = false;
-                generateBtn.classList.remove('opacity-50');
                 loadingSpinner.classList.add('hidden');
-                
-                // If no images were generated, show the placeholder again
                 if (outputContainer.children.length === 1 && outputContainer.firstChild === loadingSpinner) {
-                     outputContainer.innerHTML = ''; // Clear spinner
-                     outputContainer.appendChild(outputPlaceholder);
-                     outputPlaceholder.classList.remove('hidden');
+                     outputContainer.innerHTML = '';
+                     const placeholder = document.createElement('div');
+                     placeholder.className = 'flex-center';
+                     placeholder.innerHTML = '<span class="preview-placeholder">Your new images will appear here</span>';
+                     outputContainer.appendChild(placeholder);
                 }
             }
         }
 
-        // --- 10. (Updated) Call Gemini API with Exponential Backoff ---
+
         async function callGeminiApi(originalBase64, retryCount = 0) {
-            const apiUrl = "/api/generate"; // your serverless backend route
-            
-            let systemPrompt = `You are an expert e-commerce photo editor. You will be given a 'SOURCE' image (containing the clothes and pose) and instructions for the desired model.
-            
+            // ✅ API key is now handled securely on the server
+            const apiUrl = "/api/generate"; // relative path - no hardcoded URLs
+
+
+            let backgroundRule = "3. DO NOT change the background from the 'SOURCE' image.";
+            if (backgroundImageBase64) {
+                backgroundRule = "3. REPLACE the entire background of the 'SOURCE' image with the provided 'BACKGROUND' image. Ensure realistic lighting and shadows of the new model on the new background.";
+            }
+
+
+            let systemPrompt = `You are an expert e-commerce photo editor. You will be given a 'SOURCE' image and instructions for a desired model ${backgroundImageBase64 ? 'and a desired BACKGROUND' : ''}.
+
 **CRITICAL RULES:**
-1.  **DO NOT** change the clothes, outfit, or apparel from the 'SOURCE' image. The clothes must remain exactly the same.
-2.  **DO NOT** change the pose from the 'SOURCE' image.
+1. DO NOT change the clothes, outfit, or apparel from the 'SOURCE' image. The clothes must remain exactly the same.
+2. DO NOT change the pose from the 'SOURCE' image.
+${backgroundRule}
+4. The final image should be a NEW model wearing the 'SOURCE' clothes in the 'SOURCE' pose.
 `;
 
-            const parts = [];
-            
-            // Add background rule and new background image (if provided)
-            if (backgroundImageBase64) {
-                // If background image is provided, change the rule
-                systemPrompt += "3.  **DO** change the background. Place the model and clothes into the 'NEW BACKGROUND' image provided. Make it look realistic.";
-                
-                parts.push({ text: "This is the 'SOURCE' image:" });
-                parts.push({
-                    inlineData: {
-                        mimeType: "image/jpeg",
-                        data: originalBase64 
-                    }
-                });
-                
-                parts.push({ text: "This is the 'NEW BACKGROUND' image:" });
-                parts.push({
-                    inlineData: {
-                        mimeType: "image/jpeg",
-                        data: backgroundImageBase64
-                    }
-                });
-            } else {
-                // If no background image, keep original rule
-                systemPrompt += "3.  **DO NOT** change the background from the 'SOURCE' image.";
 
-                parts.push({ text: "This is the 'SOURCE' image:" });
-                parts.push({
-                    inlineData: {
-                        mimeType: "image/jpeg",
-                        data: originalBase64 
-                    }
-                });
+            const parts = [{ text: systemPrompt }];
+
+            parts.push({ text: "IMAGE 1: 'SOURCE' Image (Contains clothes and pose to keep)" });
+            parts.push({ inlineData: { mimeType: "image/jpeg", data: originalBase64 } });
+
+
+            if (backgroundImageBase64) {
+                parts.push({ text: "IMAGE 2: 'BACKGROUND' Image (Use this as the new background)" });
+                parts.push({ inlineData: { mimeType: "image/jpeg", data: backgroundImageBase64 } });
             }
 
-            // Add the system prompt at the very beginning
-            parts.unshift({ text: systemPrompt });
 
-            // Add the model description
-            parts.push({ text: `Generate a new model with the following characteristics for the SOURCE image: ${modelDescription.value.trim()}` });
+            if (targetImageBase64) {
+                parts.push({ text: "IMAGE 3: 'TARGET' Model (Extract face/hair/body type from this)" });
+                parts.push({ inlineData: { mimeType: "image/jpeg", data: targetImageBase64 } });
 
 
-            const payload = {
-                contents: [{ parts: parts }],
-                generationConfig: {
-                    // responseMimeType: "image/png" // Use this for models that support it
-                },
-                // safetySettings: [...] // Add safety settings if needed
-            };
-
-            try {
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-                if ((response.status === 429 || response.status >= 500) && retryCount < 3) {
-                const delay = Math.pow(2, retryCount) * 1000 + Math.random() * 1000;
-                await new Promise(resolve => setTimeout(resolve, delay));
-                return callGeminiApi(originalBase64, retryCount + 1);
+                if (modelDescription.value.trim() !== '') {
+                    parts.push({ text: `Model Refinements: ${modelDescription.value.trim()}` });
+                }
+                } else if (modelDescription.value.trim() !== '') {
+                parts.push({ text: `Generate a new model based on this description: ${modelDescription.value.trim()}` });
                 }
 
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
-            }
 
-            const result = await response.json();
-            const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                const payload = {
+                contents: [{ parts }],
+                generationConfig: { responseModalities: ['IMAGE'] },
+                };
 
-            if (base64Data) {
+
+                try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+
+                // ✅ 1. Log for easier debugging
+                console.log("📤 Sent request to:", apiUrl);
+                console.log("📦 Payload:", payload);
+
+
+                // ✅ 2. Handle non-OK responses
+                if (!response.ok) {
+                    console.error(`❌ HTTP error! Status: ${response.status}`);
+                    if ((response.status === 429 || response.status >= 500) && retryCount < 3) {
+                    console.warn("⚠️ Retrying due to temporary error...");
+                    await new Promise(resolve =>
+                        setTimeout(resolve, Math.pow(2, retryCount) * 1000 + Math.random() * 1000)
+                    );
+                    return callGeminiApi(originalBase64, retryCount + 1);
+                    }
+                    const errorText = await response.text();
+                    throw new Error(`Server error ${response.status}: ${errorText}`);
+                }
+
+
+                // ✅ 3. Parse JSON safely
+                const result = await response.json();
+                console.log("📥 API result:", result);
+
+
+                // ✅ 4. Extract base64 image if present
+                const base64Data =
+                    result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+
+
+                if (!base64Data) {
+                    console.error("❌ No image data in response:", result);
+                    return null;
+                }
+
+
+                console.log("✅ Image generated successfully");
                 return base64Data;
-            } else {
-                const errorText = result?.candidates?.[0]?.finishReason || "No image generated. The prompt might have been blocked.";
-                console.error("API Error:", result);
-                return null;
-            }
 
-            } catch (error) {
+
+                } catch (error) {
                 console.error("🔥 API Call Error:", error);
                 return null;
+                }
             }
-        }
-        
-        // --- 11. Function to add results to the gallery ---
+
         function appendResultToGallery(base64Data) {
             const imageUrl = `data:image/png;base64,${base64Data}`;
-            
             const wrapper = document.createElement('div');
-            wrapper.className = 'relative p-2 bg-gray-600 rounded-lg mb-4';
-            
+            wrapper.className = 'result-item';
+
             const img = document.createElement('img');
             img.src = imageUrl;
-            img.className = 'w-full h-auto object-contain rounded-md';
-            
+
             const downloadLink = document.createElement('a');
             downloadLink.href = imageUrl;
-            downloadLink.download = `swapped-model-${Date.now()}.png`;
-            downloadLink.className = 'absolute bottom-4 right-4 bg-green-600 text-white font-bold py-2 px-4 rounded-lg text-sm hover:bg-green-700 transition-colors duration-200 flex items-center space-x-2';
-            downloadLink.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg> <span>Download</span>`;
-            
+            downloadLink.download = `swapped-${Date.now()}.png`;
+            downloadLink.className = 'download-btn';
+            downloadLink.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg><span>Download</span>`;
+
             wrapper.appendChild(img);
             wrapper.appendChild(downloadLink);
             outputContainer.appendChild(wrapper);
-            // Scroll to bottom to show new results
             outputContainer.scrollTop = outputContainer.scrollHeight;
         }
-        
-        // --- 12. Function to add error messages to the gallery ---
+
         function appendErrorToGallery(message) {
-            const errorEl = document.createElement('p');
-            errorEl.className = 'text-red-400 text-center p-4 bg-gray-800 rounded-lg mb-4';
+            const errorEl = document.createElement('div');
+            errorEl.className = 'error-message';
             errorEl.textContent = message;
             outputContainer.appendChild(errorEl);
             outputContainer.scrollTop = outputContainer.scrollHeight;
         }
-
     </script>
 </body>
 </html>
