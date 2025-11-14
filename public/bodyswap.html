@@ -234,12 +234,7 @@
 1.  **DO NOT** change the clothes, outfit, or apparel from the 'SOURCE' image. The clothes must remain exactly the same.
 2.  **DO NOT** change the pose from the 'SOURCE' image.
 3.  **DO NOT** change the background from the 'SOURCE' image.
-4.  The final image should be a new model wearing the 'SOURCE' clothes in the 'SOURCE' pose and background.
-CHANGE ONLY:
-- The model's physical features based on the provided description
-- Background (if new background is provided)
-
-OUTPUT: Professional e-commerce photo with seamless integration`;
+4.  The final image should be a new model wearing the 'SOURCE' clothes in the 'SOURCE' pose and background.`;
 
       const parts = [{ text: systemPrompt }];
       parts.push({ text: "SOURCE image:" }, { inlineData: { mimeType: "image/jpeg", data: originalBase64 } });
@@ -248,17 +243,7 @@ OUTPUT: Professional e-commerce photo with seamless integration`;
         parts.push({ text: "NEW BACKGROUND (Replace the background with this):" }, { inlineData: { mimeType: "image/jpeg", data: backgroundImageBase64 } });
       }
 
-      parts.push({ text: `TASK: Replace the model in the SOURCE image with a new model matching this description:
-"${modelDescription.value.trim()}"
-
-IMPORTANT: 
-- Keep the EXACT same pose, stance, and body position
-- The clothing must fit and drape identically
-- Match the lighting and shadows from the SOURCE
-- Maintain professional e-commerce photo quality
-${backgroundImageBase64? '- Integrate the NEW BACKGROUND naturally' : '- Keep the original background'}
-
-Generate the final image now.` });
+      parts.push({text: `Generate a new model with the following characteristics for the SOURCE image: ${modelDescription.value.trim()}` });
 o
       try {
         const res = await fetch(apiUrl, {
